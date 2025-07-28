@@ -217,7 +217,11 @@ export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardPro
         totalTime: learningStatsData.totalTimeSpent,
         streak: learningStatsData.currentStreak
       },
-      monthlyActivity
+      monthlyActivity,
+      growthRate,
+      averageWordsPerMessage,
+      totalWords,
+      engagementScore
     };
 
     setAnalytics(analyticsData);
