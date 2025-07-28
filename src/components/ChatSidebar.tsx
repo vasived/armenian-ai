@@ -353,6 +353,8 @@ interface ChatSessionItemProps {
   onSaveEdit: () => void;
   onCancelEdit: () => void;
   onTitleChange: (title: string) => void;
+  isNew?: boolean;
+  isDeleting?: boolean;
 }
 
 const ChatSessionItem = ({
