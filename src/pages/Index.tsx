@@ -232,55 +232,54 @@ const Index = () => {
         });
         break;
       case 'favorites':
-        // This will be handled by the FavoritesDialog
+        // Open favorites dialog (handled by the FavoritesDialog trigger)
         break;
       case 'search':
-        toast({
-          title: "Global Search",
-          description: "Search across all conversations feature coming soon!",
-        });
+        setGlobalSearchOpen(true);
         break;
       case 'export':
         if (activeSession) {
-          const content = activeSession.messages
-            .map(m => `${m.isUser ? 'You' : 'HagopAI'}: ${m.content}`)
-            .join('\n\n');
+          const content = [
+            `Chat: ${activeSession.title}`,
+            `Created: ${activeSession.createdAt.toLocaleDateString()}`,
+            `Messages: ${activeSession.messages.length}`,
+            '',
+            ...activeSession.messages.map(m =>
+              `[${m.timestamp.toLocaleTimeString()}] ${m.isUser ? 'You' : 'HagopAI'}: ${m.content}`
+            )
+          ].join('\n');
+
           const blob = new Blob([content], { type: 'text/plain' });
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = `${activeSession.title}.txt`;
+          a.download = `HagopAI-${activeSession.title.replace(/[^a-zA-Z0-9]/g, '_')}.txt`;
           a.click();
           URL.revokeObjectURL(url);
+
           toast({
             title: "Chat Exported",
             description: "Your conversation has been downloaded as a text file.",
           });
+        } else {
+          toast({
+            title: "No Active Chat",
+            description: "Start a conversation first to export it.",
+            variant: "destructive"
+          });
         }
         break;
       case 'calendar':
-        toast({
-          title: "Armenian Calendar",
-          description: "Cultural calendar feature coming soon!",
-        });
+        setCalendarOpen(true);
         break;
       case 'learning':
-        toast({
-          title: "Learning Mode",
-          description: "Interactive Armenian lessons coming soon!",
-        });
+        setLearningOpen(true);
         break;
       case 'themes':
-        toast({
-          title: "Theme Customizer",
-          description: "Custom themes feature coming soon!",
-        });
+        setThemesOpen(true);
         break;
       case 'analytics':
-        toast({
-          title: "Usage Analytics",
-          description: "Analytics dashboard coming soon!",
-        });
+        setAnalyticsOpen(true);
         break;
       default:
         console.log('Unknown action:', action);
