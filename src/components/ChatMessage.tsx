@@ -9,6 +9,9 @@ interface ChatMessageProps {
   message: string;
   isUser: boolean;
   timestamp?: Date;
+  messageId?: string;
+  sessionId?: string;
+  sessionTitle?: string;
 }
 
 export const ChatMessage = ({ message, isUser, timestamp }: ChatMessageProps) => {
