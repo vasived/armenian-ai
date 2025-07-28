@@ -141,16 +141,17 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
                     size="sm"
                     onClick={handleToggleFavorite}
                     className={cn(
-                      "h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity",
+                      "h-7 w-7 p-0 transition-all duration-200",
+                      "opacity-0 group-hover:opacity-100 group-hover:scale-110",
                       isUser
                         ? "hover:bg-white/20 text-white/70 hover:text-white"
-                        : "hover:bg-accent",
-                      favorited && "opacity-100"
+                        : "hover:bg-accent hover:shadow-md",
+                      favorited && "opacity-100 scale-105"
                     )}
                   >
                     <Star className={cn(
-                      "h-3 w-3",
-                      favorited ? "fill-yellow-400 text-yellow-400" : ""
+                      "h-3.5 w-3.5 transition-all duration-200",
+                      favorited ? "fill-yellow-400 text-yellow-400 scale-110" : ""
                     )} />
                   </Button>
                 )}
@@ -160,16 +161,18 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
                   size="sm"
                   onClick={handleCopy}
                   className={cn(
-                    "h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity",
+                    "h-7 w-7 p-0 transition-all duration-200",
+                    "opacity-0 group-hover:opacity-100 group-hover:scale-110",
                     isUser
                       ? "hover:bg-white/20 text-white/70 hover:text-white"
-                      : "hover:bg-accent"
+                      : "hover:bg-accent hover:shadow-md",
+                    copied && "opacity-100 scale-105"
                   )}
                 >
                   {copied ? (
-                    <Check className="h-3 w-3" />
+                    <Check className="h-3.5 w-3.5 text-green-500" />
                   ) : (
-                    <Copy className="h-3 w-3" />
+                    <Copy className="h-3.5 w-3.5" />
                   )}
                 </Button>
               </div>
