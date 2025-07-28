@@ -552,6 +552,36 @@ const Index = () => {
 
       {/* Quick Actions Panel */}
       <QuickActions onAction={handleQuickAction} />
+
+      {/* All Feature Dialogs */}
+      <GlobalSearchDialog
+        open={globalSearchOpen}
+        onOpenChange={setGlobalSearchOpen}
+        onSelectChat={(sessionId) => {
+          setActiveSessionId(sessionId);
+          setGlobalSearchOpen(false);
+        }}
+      />
+
+      <ArmenianCalendar
+        open={calendarOpen}
+        onOpenChange={setCalendarOpen}
+      />
+
+      <LearningMode
+        open={learningOpen}
+        onOpenChange={setLearningOpen}
+      />
+
+      <ThemeCustomizer
+        open={themesOpen}
+        onOpenChange={setThemesOpen}
+      />
+
+      <AnalyticsDashboard
+        open={analyticsOpen}
+        onOpenChange={setAnalyticsOpen}
+      />
     </div>
   );
 };
