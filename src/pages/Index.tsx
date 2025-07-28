@@ -240,9 +240,11 @@ const Index = () => {
         // Open favorites dialog (handled by the FavoritesDialog trigger)
         break;
       case 'search':
+        progressManager.trackFeatureUsage('global_search');
         setGlobalSearchOpen(true);
         break;
       case 'export':
+        progressManager.trackFeatureUsage('export_chat');
         if (activeSession) {
           const content = [
             `Chat: ${activeSession.title}`,
