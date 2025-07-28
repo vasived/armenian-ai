@@ -184,7 +184,7 @@ const Index = () => {
     };
 
     setSessions(prev => updateChatSession(prev, currentSessionId!, {
-      messages: [...(prev.find(s => s.id === currentSessionId)?.messages || []), userMessage, aiResponse]
+      messages: [...(prev.find(s => s.id === currentSessionId)?.messages || []), aiResponse]
     }));
 
     setIsLoading(false);
