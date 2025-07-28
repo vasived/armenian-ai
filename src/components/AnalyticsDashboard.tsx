@@ -82,10 +82,15 @@ export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardPro
 
     // Get data from progress manager
     const userProgress = progressManager.getProgress();
-    const learningStats = progressManager.getLearningStats();
+    const learningStatsData = progressManager.getLearningStats();
     const chatStats = progressManager.getChatStats();
-    const usageStats = progressManager.getUsageStats();
-    const achievements = progressManager.getAchievements();
+    const usageStatsData = progressManager.getUsageStats();
+    const achievementsData = progressManager.getAchievements();
+
+    // Set state for these variables
+    setLearningStats(learningStatsData);
+    setUsageStats(usageStatsData);
+    setAchievements(achievementsData);
 
     // Get additional data from localStorage
     const sessions = loadChatSessions();
