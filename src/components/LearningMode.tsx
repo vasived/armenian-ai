@@ -599,24 +599,31 @@ export const LearningMode = ({ open, onOpenChange }: LearningModeProps) => {
                       </div>
                     </div>
 
-                    {/* Footer */}
-                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{lesson.phrases.length} phrases</span>
+                    {/* Enhanced Footer */}
+                    <div className="flex items-center justify-between pt-3 border-t border-border/30">
+                      <div className="flex items-center gap-3 text-xs font-medium">
+                        <div className="flex items-center gap-1 text-primary">
+                          <MessageCircle className="h-3 w-3" />
+                          <span>{lesson.phrases.length} phrases</span>
+                        </div>
                         {attempts > 0 && (
-                          <>
-                            <span>•</span>
+                          <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
+                            <User className="h-3 w-3" />
                             <span>{attempts} attempts</span>
-                          </>
+                          </div>
                         )}
                         {isCompleted && score > 0 && (
-                          <>
-                            <span>•</span>
-                            <span className="text-green-600 font-medium">{score}% score</span>
-                          </>
+                          <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
+                            <Award className="h-3 w-3" />
+                            <span>{score}% score</span>
+                          </div>
                         )}
                       </div>
-                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                      <ArrowRight className={cn(
+                        "h-4 w-4 transition-all duration-300",
+                        "group-hover:translate-x-1 group-hover:text-primary",
+                        isCompleted ? "text-green-500" : "text-muted-foreground"
+                      )} />
                     </div>
                   </div>
                 </Card>
