@@ -149,7 +149,7 @@ export const generateUserContextPrompt = (preferences: UserPreferences): string 
   // Language preference with strong enforcement
   switch (preferences.preferredLanguage) {
     case 'armenian':
-      contextParts.push('RESPOND PRIMARILY IN WESTERN ARMENIAN. Use Armenian as the main language of response.');
+      contextParts.push('RESPOND PRIMARILY IN WESTERN ARMENIAN. Use Armenian as the main language of response. Structure sentences in Armenian and only supplement with English when necessary.');
       break;
     case 'english':
       contextParts.push('RESPOND PRIMARILY IN ENGLISH. Use English as the main language of response, minimizing Armenian unless specifically requested.');
