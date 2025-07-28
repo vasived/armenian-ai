@@ -574,19 +574,29 @@ export const LearningMode = ({ open, onOpenChange }: LearningModeProps) => {
                     </div>
 
                     {/* Description */}
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <p className="text-sm text-muted-foreground leading-relaxed font-medium">
                       {lesson.description}
                     </p>
 
-                    {/* Preview */}
-                    <div className="bg-accent/30 rounded-lg p-3">
-                      <p className="text-sm font-medium mb-1">Preview:</p>
-                      <p className="text-sm text-primary font-semibold">
-                        {lesson.phrases[0].armenian}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {lesson.phrases[0].english}
-                      </p>
+                    {/* Enhanced Preview */}
+                    <div className={cn(
+                      "relative rounded-xl p-4 border-2 border-dashed border-primary/20",
+                      "bg-gradient-to-br from-primary/5 to-accent/10",
+                      "group-hover:border-solid group-hover:border-primary/40",
+                      "transition-all duration-300"
+                    )}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Sparkles className="h-4 w-4 text-primary" />
+                        <p className="text-sm font-bold text-primary">Preview Phrase:</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-base font-bold text-foreground">
+                          {lesson.phrases[0].armenian}
+                        </p>
+                        <p className="text-sm text-muted-foreground italic">
+                          "{lesson.phrases[0].english}"
+                        </p>
+                      </div>
                     </div>
 
                     {/* Footer */}
