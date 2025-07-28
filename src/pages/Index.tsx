@@ -217,12 +217,22 @@ const Index = () => {
       timestamp: new Date()
     };
 
-    // Update session with AI response
+    // Update session with AI response and potentially update title
     setSessions(prev => {
       const currentSession = prev.find(s => s.id === currentSessionId);
       const updatedMessages = [...(currentSession?.messages || []), aiResponse];
+
+      // Update title intelligently after 2-3 exchanges to get better context
+      const shouldUpdateTitle = updatedMessages.length >= 4 &&
+        (currentSession?.title === 'New Chat' || currentSession?.title?.startsWith('Chat about'));
+
+      const newTitle = shouldUpdateTitle
+        ? generateContextualTitle(updatedMessages)
+        : currentSession?.title;
+
       return updateChatSession(prev, currentSessionId!, {
-        messages: updatedMessages
+        messages: updatedMessages,
+        ...(shouldUpdateTitle && { title: newTitle })
       });
     });
 
