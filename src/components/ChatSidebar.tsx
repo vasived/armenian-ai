@@ -44,6 +44,9 @@ export const ChatSidebar = ({
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [newChatId, setNewChatId] = useState<string | null>(null);
+  const [deletingChatId, setDeletingChatId] = useState<string | null>(null);
+  const previousSessionsRef = useRef<ChatSession[]>(sessions);
 
   const sortedSessions = [...sessions].sort((a, b) => 
     new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
