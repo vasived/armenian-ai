@@ -174,20 +174,25 @@ export const LearningMode = ({ open, onOpenChange }: LearningModeProps) => {
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
   const [showTranslation, setShowTranslation] = useState(false);
-  const [lessonProgress, setLessonProgress] = useState<Record<string, boolean>>({});
+  const [lessonStartTime, setLessonStartTime] = useState<Date | null>(null);
+  const [phraseScores, setPhraseScores] = useState<number[]>([]);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const { toast } = useToast();
 
-  useEffect(() => {
-    // Load progress from localStorage
-    const saved = localStorage.getItem('armenian_lesson_progress');
-    if (saved) {
-      setLessonProgress(JSON.parse(saved));
-    }
-  }, []);
+  // Get progress from progressManager
+  const learningStats = progressManager.getLearningStats();
+  const userProgress = progressManager.getProgress();
 
-  const saveProgress = (lessonId: string, completed: boolean) => {
-    const newProgress = { ...lessonProgress, [lessonId]: completed };
-    setLessonProgress(newProgress);
-    localStorage.setItem('armenian_lesson_progress', JSON.stringify(newProgress));
+  const isLessonCompleted = (lessonId: string) => {
+    return userProgress.learning.lessonProgress[lessonId]?.completed || false;
+  };
+
+  const getLessonAttempts = (lessonId: string) => {
+    return userProgress.learning.lessonProgress[lessonId]?.attempts || 0;
+  };
+
+  const getLessonScore = (lessonId: string) => {
+    return userProgress.learning.lessonProgress[lessonId]?.score || 0;
   };
 
   const startLesson = (lesson: Lesson) => {
