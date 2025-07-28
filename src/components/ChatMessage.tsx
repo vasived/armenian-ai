@@ -31,8 +31,20 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
       await navigator.clipboard.writeText(message);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      notifications.success(
+        "Message Copied",
+        "Text copied to clipboard",
+        {
+          icon: <Copy className="h-5 w-5 text-white" />,
+          duration: 2000
+        }
+      );
     } catch (error) {
       console.error('Failed to copy message:', error);
+      notifications.error(
+        "Copy Failed",
+        "Unable to copy text to clipboard"
+      );
     }
   };
 
