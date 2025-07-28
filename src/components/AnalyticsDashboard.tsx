@@ -315,6 +315,59 @@ export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardPro
               </Card>
             </div>
 
+            {/* Enhanced Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-indigo-500 rounded-lg">
+                    <Brain className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{analytics.engagementScore}</p>
+                    <p className="text-sm text-muted-foreground">Engagement Score</p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-teal-500 rounded-lg">
+                    <TrendingUp className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">
+                      {analytics.growthRate > 0 ? '+' : ''}{analytics.growthRate.toFixed(1)}%
+                    </p>
+                    <p className="text-sm text-muted-foreground">Monthly Growth</p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-orange-500 rounded-lg">
+                    <MessageSquare className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{analytics.averageWordsPerMessage}</p>
+                    <p className="text-sm text-muted-foreground">Avg Words/Message</p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-red-500 rounded-lg">
+                    <Activity className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{analytics.totalWords.toLocaleString()}</p>
+                    <p className="text-sm text-muted-foreground">Total Words</p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
             {/* Conversation Insights */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card className="p-6">
