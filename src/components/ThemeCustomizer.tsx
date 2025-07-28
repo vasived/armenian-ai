@@ -161,7 +161,7 @@ export const ThemeCustomizer = ({ open, onOpenChange }: ThemeCustomizerProps) =>
   const [highContrast, setHighContrast] = useState(false);
 
   useEffect(() => {
-    // Load saved settings
+    // Load saved settings and apply them immediately
     const savedTheme = localStorage.getItem('hagopai_theme') || 'default';
     const savedFontSize = parseInt(localStorage.getItem('hagopai_font_size') || '100');
     const savedBorderRadius = parseInt(localStorage.getItem('hagopai_border_radius') || '75');
@@ -173,6 +173,15 @@ export const ThemeCustomizer = ({ open, onOpenChange }: ThemeCustomizerProps) =>
     setBorderRadius(savedBorderRadius);
     setAnimations(savedAnimations);
     setHighContrast(savedHighContrast);
+
+    // Apply theme immediately if not default
+    if (savedTheme !== 'default') {
+      applyTheme(savedTheme);
+    }
+    applyFontSize([savedFontSize]);
+    applyBorderRadius([savedBorderRadius]);
+    toggleAnimations(savedAnimations);
+    toggleHighContrast(savedHighContrast);
   }, [open]);
 
   const applyTheme = (themeId: string) => {
