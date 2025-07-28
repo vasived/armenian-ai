@@ -5,6 +5,8 @@ import { ChatSidebar } from "@/components/ChatSidebar";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserSettings } from "@/components/UserSettings";
+import { QuickActions } from "@/components/QuickActions";
+import { FavoritesDialog } from "@/components/FavoritesDialog";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
