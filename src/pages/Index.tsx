@@ -134,7 +134,7 @@ const Index = () => {
 
   const handleSendMessage = async (content: string) => {
     let currentSessionId = activeSessionId;
-    
+
     // Create new session if none exists
     if (!currentSessionId) {
       const newSession = createNewChatSession();
@@ -151,27 +151,26 @@ const Index = () => {
       timestamp: new Date()
     };
 
-    setSessions(prev => updateChatSession(prev, currentSessionId!, {
-      messages: [...(prev.find(s => s.id === currentSessionId)?.messages || []), userMessage],
-      title: prev.find(s => s.id === currentSessionId)?.title === 'New Chat' 
-        ? generateChatTitle(content) 
-        : prev.find(s => s.id === currentSessionId)?.title
-    }));
-
-    setIsLoading(true);
-
+    // Get current session and build conversation history
     const currentSession = sessions.find(s => s.id === currentSessionId);
-    const conversationHistory = (currentSession?.messages || [])
+    const existingMessages = currentSession?.messages || [];
+
+    // Build conversation history with existing messages + new user message
+    const conversationHistory = [...existingMessages, userMessage]
       .map(msg => ({
         role: msg.isUser ? 'user' as const : 'assistant' as const,
         content: msg.content
       }));
 
-    // Add current user message
-    conversationHistory.push({
-      role: 'user' as const,
-      content
-    });
+    // Update session with user message and title
+    setSessions(prev => updateChatSession(prev, currentSessionId!, {
+      messages: [...existingMessages, userMessage],
+      title: prev.find(s => s.id === currentSessionId)?.title === 'New Chat'
+        ? generateChatTitle(content)
+        : prev.find(s => s.id === currentSessionId)?.title
+    }));
+
+    setIsLoading(true);
 
     // Get AI response
     const aiResponseContent = await generateAIResponse(conversationHistory);
@@ -183,9 +182,14 @@ const Index = () => {
       timestamp: new Date()
     };
 
-    setSessions(prev => updateChatSession(prev, currentSessionId!, {
-      messages: [...(prev.find(s => s.id === currentSessionId)?.messages || []), aiResponse]
-    }));
+    // Update session with AI response
+    setSessions(prev => {
+      const currentSession = prev.find(s => s.id === currentSessionId);
+      const updatedMessages = [...(currentSession?.messages || []), aiResponse];
+      return updateChatSession(prev, currentSessionId!, {
+        messages: updatedMessages
+      });
+    });
 
     setIsLoading(false);
   };
