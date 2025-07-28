@@ -1,3 +1,5 @@
+import { generateSessionId } from './utils';
+
 export interface Message {
   id: string;
   content: string;
