@@ -420,13 +420,94 @@ export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardPro
               </div>
             </Card>
 
+            {/* Achievements */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Trophy className="h-5 w-5" />
+                Achievements
+                <Badge variant="secondary" className="ml-2">
+                  {achievements.filter(a => a.unlocked).length}/{achievements.length}
+                </Badge>
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                {achievements.map((achievement) => (
+                  <div
+                    key={achievement.id}
+                    className={cn(
+                      "p-3 rounded-lg border transition-all duration-200",
+                      achievement.unlocked
+                        ? "bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20 border-yellow-200 dark:border-yellow-800"
+                        : "bg-muted/30 border-border/50 opacity-60"
+                    )}
+                  >
+                    <div className="text-center">
+                      <div className="text-2xl mb-2">{achievement.icon}</div>
+                      <h4 className="font-semibold text-sm mb-1">{achievement.title}</h4>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        {achievement.description}
+                      </p>
+                      {achievement.unlocked ? (
+                        <Badge variant="outline" className="text-xs bg-green-100 dark:bg-green-900/30">
+                          Unlocked
+                        </Badge>
+                      ) : (
+                        <div className="text-xs text-muted-foreground">
+                          {achievement.requirements.current || 0}/{achievement.requirements.target}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* Enhanced Learning Stats */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Flame className="h-5 w-5" />
+                Learning Insights
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg mb-2">
+                    <BookOpen className="h-8 w-8 mx-auto text-blue-600" />
+                  </div>
+                  <p className="text-2xl font-bold">{learningStats.completedLessons}</p>
+                  <p className="text-sm text-muted-foreground">Lessons Completed</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Avg Score: {learningStats.averageScorePerLesson}%
+                  </p>
+                </div>
+                <div className="text-center">
+                  <div className="p-4 bg-orange-50 dark:bg-orange-950/20 rounded-lg mb-2">
+                    <Flame className="h-8 w-8 mx-auto text-orange-600" />
+                  </div>
+                  <p className="text-2xl font-bold">{learningStats.currentStreak}</p>
+                  <p className="text-sm text-muted-foreground">Current Streak</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Best: {learningStats.longestStreak} days
+                  </p>
+                </div>
+                <div className="text-center">
+                  <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg mb-2">
+                    <Clock className="h-8 w-8 mx-auto text-green-600" />
+                  </div>
+                  <p className="text-2xl font-bold">{learningStats.totalTimeSpent}</p>
+                  <p className="text-sm text-muted-foreground">Minutes Studied</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Keep learning!
+                  </p>
+                </div>
+              </div>
+            </Card>
+
             {/* Fun Facts */}
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Target className="h-5 w-5" />
                 Fun Facts
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-4 bg-accent/20 rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <MessageSquare className="h-4 w-4 text-primary" />
@@ -443,6 +524,15 @@ export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardPro
                   </div>
                   <p className="text-sm text-muted-foreground">
                     {analytics.mostActiveDay}
+                  </p>
+                </div>
+                <div className="p-4 bg-accent/20 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Palette className="h-4 w-4 text-primary" />
+                    <span className="font-medium">Features Explored</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {usageStats.featuresExplored}/8 features discovered
                   </p>
                 </div>
               </div>
