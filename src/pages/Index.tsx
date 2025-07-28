@@ -593,6 +593,9 @@ const Index = () => {
         open={analyticsOpen}
         onOpenChange={setAnalyticsOpen}
       />
+
+      {/* Achievement Notifications */}
+      <AchievementNotification />
     </div>
   );
 };
