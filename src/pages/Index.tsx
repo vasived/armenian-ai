@@ -197,7 +197,7 @@ const Index = () => {
             <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-2 sm:mb-3 leading-tight">
               Parev! Your Armenian Friend in the Digital World
             </h2>
-            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-3xl mx-auto">
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed w-full mx-auto">
               Whether you need help with Armenian traditions, family questions, work advice, or just want to chat about life -
               HagopAI is here for you. Talk to me in English or Western Armenian
               (like <span className="font-medium text-primary">"parev"</span> or <span className="font-medium text-primary">"shnorhakaloutyoun"</span>) and let's have a real conversation!
