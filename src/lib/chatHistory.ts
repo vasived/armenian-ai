@@ -86,8 +86,6 @@ export const generateChatTitle = (firstMessage: string): string => {
   return cleanMessage.length > 40 ? `${cleanMessage.slice(0, 40)}...` : cleanMessage;
 };
 
-import { generateSessionId } from './utils';
-
 export const createNewChatSession = (): ChatSession => {
   return {
     id: generateSessionId(),
