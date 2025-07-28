@@ -210,6 +210,70 @@ const Index = () => {
     setIsLoading(false);
   };
 
+  const handleQuickAction = (action: string) => {
+    switch (action) {
+      case 'voice':
+        toast({
+          title: "Voice Messages",
+          description: "Voice recording feature coming soon!",
+        });
+        break;
+      case 'favorites':
+        // This will be handled by the FavoritesDialog
+        break;
+      case 'search':
+        toast({
+          title: "Global Search",
+          description: "Search across all conversations feature coming soon!",
+        });
+        break;
+      case 'export':
+        if (activeSession) {
+          const content = activeSession.messages
+            .map(m => `${m.isUser ? 'You' : 'HagopAI'}: ${m.content}`)
+            .join('\n\n');
+          const blob = new Blob([content], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${activeSession.title}.txt`;
+          a.click();
+          URL.revokeObjectURL(url);
+          toast({
+            title: "Chat Exported",
+            description: "Your conversation has been downloaded as a text file.",
+          });
+        }
+        break;
+      case 'calendar':
+        toast({
+          title: "Armenian Calendar",
+          description: "Cultural calendar feature coming soon!",
+        });
+        break;
+      case 'learning':
+        toast({
+          title: "Learning Mode",
+          description: "Interactive Armenian lessons coming soon!",
+        });
+        break;
+      case 'themes':
+        toast({
+          title: "Theme Customizer",
+          description: "Custom themes feature coming soon!",
+        });
+        break;
+      case 'analytics':
+        toast({
+          title: "Usage Analytics",
+          description: "Analytics dashboard coming soon!",
+        });
+        break;
+      default:
+        console.log('Unknown action:', action);
+    }
+  };
+
   const examplePrompts = [
     {
       icon: <Heart className="h-5 w-5" />,
