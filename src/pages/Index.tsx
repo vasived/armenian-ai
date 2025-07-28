@@ -607,6 +607,12 @@ const Index = () => {
 
       {/* Achievement Notifications */}
       <AchievementNotification />
+
+      {/* Voice Message Popup */}
+      <VoiceMessagePopup
+        show={voicePopupOpen}
+        onClose={() => setVoicePopupOpen(false)}
+      />
     </div>
   );
 };
