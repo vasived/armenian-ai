@@ -201,6 +201,9 @@ const Index = () => {
         : prev.find(s => s.id === currentSessionId)?.title
     }));
 
+    // Track progress
+    progressManager.updateChatProgress(true, !currentSession);
+
     setIsLoading(true);
 
     // Get AI response
