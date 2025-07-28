@@ -239,7 +239,7 @@ export const ChatSidebar = ({
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-80 p-0">
-          <SidebarContent />
+          <MobileSidebarContent />
         </SheetContent>
       </Sheet>
     </>
