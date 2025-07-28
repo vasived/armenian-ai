@@ -30,9 +30,9 @@ export const getUserPreferences = (): UserPreferences => {
   
   // Default preferences for Armenian users
   return {
-    preferredLanguage: 'mixed',
+    preferredLanguage: 'armenian',
     responseStyle: 'family-like',
-    armenianUsage: 'occasional',
+    armenianUsage: 'frequent',
     armenianScript: 'transliteration',
     culturalDepth: 'moderate',
     armenianLevel: 'native'
