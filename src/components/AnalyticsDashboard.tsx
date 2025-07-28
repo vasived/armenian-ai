@@ -188,10 +188,18 @@ export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardPro
   if (!analytics || isLoading) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl h-[80vh] flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin h-12 w-12 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p>Analyzing your HagopAI journey...</p>
+        <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              Loading Analytics
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin h-12 w-12 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+              <p>Analyzing your HagopAI journey...</p>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
