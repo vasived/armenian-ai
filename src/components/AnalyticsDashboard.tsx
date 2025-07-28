@@ -165,7 +165,7 @@ export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardPro
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
 
-    // Monthly activity (last 6 months)
+    // Monthly activity (last 6 months) with enhanced calculations
     const monthlyActivity = [];
     const now = new Date();
     for (let i = 5; i >= 0; i--) {
@@ -173,11 +173,16 @@ export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardPro
       const monthStr = month.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
       const monthMessages = allMessages.filter(m => {
         const messageDate = new Date(m.timestamp);
-        return messageDate.getMonth() === month.getMonth() && 
+        return messageDate.getMonth() === month.getMonth() &&
                messageDate.getFullYear() === month.getFullYear();
       }).length;
       monthlyActivity.push({ month: monthStr, messages: monthMessages });
     }
+
+    // Calculate growth rate
+    const thisMonth = monthlyActivity[monthlyActivity.length - 1]?.messages || 0;
+    const lastMonth = monthlyActivity[monthlyActivity.length - 2]?.messages || 0;
+    const growthRate = lastMonth > 0 ? ((thisMonth - lastMonth) / lastMonth) * 100 : 0;
 
     const analyticsData: AnalyticsData = {
       totalChats,
