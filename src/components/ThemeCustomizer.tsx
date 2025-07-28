@@ -242,10 +242,21 @@ export const ThemeCustomizer = ({ open, onOpenChange }: ThemeCustomizerProps) =>
   };
 
   const toggleHighContrast = (enabled: boolean) => {
+    const root = document.documentElement;
     if (enabled) {
-      document.documentElement.classList.add('high-contrast');
+      root.classList.add('high-contrast');
+      // Apply high contrast color overrides
+      root.style.setProperty('--foreground', '0 0% 0%');
+      root.style.setProperty('--background', '0 0% 100%');
+      root.style.setProperty('--border', '0 0% 20%');
+      root.style.setProperty('--muted-foreground', '0 0% 30%');
     } else {
-      document.documentElement.classList.remove('high-contrast');
+      root.classList.remove('high-contrast');
+      // Remove high contrast overrides
+      root.style.removeProperty('--foreground');
+      root.style.removeProperty('--background');
+      root.style.removeProperty('--border');
+      root.style.removeProperty('--muted-foreground');
     }
     setHighContrast(enabled);
     localStorage.setItem('hagopai_high_contrast', enabled.toString());
