@@ -1,64 +1,74 @@
 import { useState, useEffect, useRef } from "react";
 import { ChatMessage } from "@/components/ChatMessage";
 import { ChatInput } from "@/components/ChatInput";
+import { ChatSidebar } from "@/components/ChatSidebar";
 import { LoadingIndicator } from "@/components/LoadingIndicator";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserSettings } from "@/components/UserSettings";
+import { QuickActions } from "@/components/QuickActions";
+import { FavoritesDialog } from "@/components/FavoritesDialog";
+import { GlobalSearchDialog } from "@/components/GlobalSearchDialog";
+import { ArmenianCalendar } from "@/components/ArmenianCalendar";
+import { LearningMode } from "@/components/LearningMode";
+import { ThemeCustomizer } from "@/components/ThemeCustomizer";
+import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
+import { AchievementNotification } from "@/components/AchievementNotification";
+import { progressManager } from "@/lib/progressManager";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { generateAIResponse } from "@/lib/openai";
-import { Bot, Sparkles, Globe, Trash2 } from "lucide-react";
+import { generateMessageId } from "@/lib/utils";
+import {
+  Bot,
+  Sparkles,
+  Globe,
+  ArrowRight,
+  Heart,
+  Coffee,
+  BookOpen,
+  Users,
+  Lightbulb,
+  MessageCircle,
+  Menu,
+  Plus,
+  Search,
+  MessageSquare,
+  Star
+} from "lucide-react";
 import { ArmenianIcon } from "@/components/ArmenianIcon";
-import hagopLogo from "@/assets/hagop-ai-logo.jpg";
-import hagopIcon from "@/assets/hagop-ai-icon.jpg";
-
-interface Message {
-  id: string;
-  content: string;
-  isUser: boolean;
-  timestamp: Date;
-}
-
-const CHAT_HISTORY_KEY = 'hagopai_chat_history';
-
-const saveChatHistory = (messages: Message[]) => {
-  try {
-    localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(messages));
-  } catch (error) {
-    console.warn('Could not save chat history:', error);
-  }
-};
-
-const clearChatHistory = () => {
-  try {
-    localStorage.removeItem(CHAT_HISTORY_KEY);
-  } catch (error) {
-    console.warn('Could not clear chat history:', error);
-  }
-};
-
-const loadChatHistory = (): Message[] => {
-  try {
-    const saved = localStorage.getItem(CHAT_HISTORY_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      return parsed.map((msg: any) => ({
-        ...msg,
-        timestamp: new Date(msg.timestamp)
-      }));
-    }
-  } catch (error) {
-    console.warn('Could not load chat history:', error);
-  }
-  return [];
-};
+import { 
+  ChatSession, 
+  Message,
+  saveChatSessions,
+  loadChatSessions,
+  getActiveChat,
+  setActiveChat,
+  generateChatTitle,
+  createNewChatSession,
+  updateChatSession,
+  deleteChatSession
+} from "@/lib/chatHistory";
 
 const Index = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Dialog states
+  const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [learningOpen, setLearningOpen] = useState(false);
+  const [themesOpen, setThemesOpen] = useState(false);
+  const [analyticsOpen, setAnalyticsOpen] = useState(false);
+
+  const activeSession = sessions.find(s => s.id === activeSessionId) || null;
+  const messages = activeSession?.messages || [];
 
   // Auto-scroll to bottom when messages change
   const scrollToBottom = () => {
@@ -69,190 +79,523 @@ const Index = () => {
     scrollToBottom();
   }, [messages, isLoading]);
 
-  // Load chat history on component mount
+  // Load chat sessions on component mount
   useEffect(() => {
-    const savedMessages = loadChatHistory();
-    setMessages(savedMessages);
+    const savedSessions = loadChatSessions();
+
+    // Debug: Check for duplicate message IDs
+    const allMessages = savedSessions.flatMap(s => s.messages);
+    const messageIds = allMessages.map(m => m.id);
+    const duplicateIds = messageIds.filter((id, index) => messageIds.indexOf(id) !== index);
+
+    if (duplicateIds.length > 0) {
+      console.warn('Found duplicate message IDs:', duplicateIds);
+      // Clear localStorage to fix corruption
+      localStorage.removeItem('hagopai_chat_sessions');
+      setSessions([]);
+      return;
+    }
+
+    setSessions(savedSessions);
+
+    const lastActiveChat = getActiveChat();
+    if (lastActiveChat && savedSessions.find(s => s.id === lastActiveChat)) {
+      setActiveSessionId(lastActiveChat);
+    } else if (savedSessions.length > 0) {
+      setActiveSessionId(savedSessions[0].id);
+      setActiveChat(savedSessions[0].id);
+    }
   }, []);
 
-  // Save chat history whenever messages change
+  // Save sessions whenever they change
   useEffect(() => {
-    if (messages.length > 0) {
-      saveChatHistory(messages);
+    if (sessions.length > 0) {
+      saveChatSessions(sessions);
     }
-  }, [messages]);
+  }, [sessions]);
 
-  const handleClearChat = () => {
-    setMessages([]);
-    clearChatHistory();
+  // Update active chat in localStorage
+  useEffect(() => {
+    if (activeSessionId) {
+      setActiveChat(activeSessionId);
+    }
+  }, [activeSessionId]);
+
+  const handleNewChat = () => {
+    const newSession = createNewChatSession();
+    setSessions(prev => [newSession, ...prev]);
+    setActiveSessionId(newSession.id);
+    
     toast({
-      title: "Chat Cleared",
-      description: "Your conversation history has been cleared.",
+      title: "New Chat Started",
+      description: "Ready for a fresh conversation!",
+    });
+  };
+
+  const handleSelectChat = (sessionId: string) => {
+    setActiveSessionId(sessionId);
+  };
+
+  const handleDeleteChat = (sessionId: string) => {
+    setSessions(prev => deleteChatSession(prev, sessionId));
+    
+    if (activeSessionId === sessionId) {
+      const remainingSessions = sessions.filter(s => s.id !== sessionId);
+      if (remainingSessions.length > 0) {
+        setActiveSessionId(remainingSessions[0].id);
+      } else {
+        setActiveSessionId(null);
+      }
+    }
+    
+    toast({
+      title: "Chat Deleted",
+      description: "Chat history has been removed.",
+    });
+  };
+
+  const handleRenameChat = (sessionId: string, newTitle: string) => {
+    setSessions(prev => updateChatSession(prev, sessionId, { title: newTitle }));
+    
+    toast({
+      title: "Chat Renamed",
+      description: "Chat title has been updated.",
     });
   };
 
   const handleSendMessage = async (content: string) => {
+    let currentSessionId = activeSessionId;
+
+    // Create new session if none exists
+    if (!currentSessionId) {
+      const newSession = createNewChatSession();
+      setSessions(prev => [newSession, ...prev]);
+      setActiveSessionId(newSession.id);
+      currentSessionId = newSession.id;
+    }
+
     // Add user message
     const userMessage: Message = {
-      id: Date.now().toString(),
+      id: generateMessageId(),
       content,
       isUser: true,
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    setIsLoading(true);
+    // Get current session and build conversation history
+    const currentSession = sessions.find(s => s.id === currentSessionId);
+    const existingMessages = currentSession?.messages || [];
 
-    // Convert messages to OpenAI format
-    const conversationHistory = messages
-      .filter(msg => msg.id !== "welcome") // Exclude welcome message
+    // Build conversation history with existing messages + new user message
+    const conversationHistory = [...existingMessages, userMessage]
       .map(msg => ({
         role: msg.isUser ? 'user' as const : 'assistant' as const,
         content: msg.content
       }));
 
-    // Add current user message
-    conversationHistory.push({
-      role: 'user' as const,
-      content
-    });
+    // Update session with user message and title
+    setSessions(prev => updateChatSession(prev, currentSessionId!, {
+      messages: [...existingMessages, userMessage],
+      title: prev.find(s => s.id === currentSessionId)?.title === 'New Chat'
+        ? generateChatTitle(content)
+        : prev.find(s => s.id === currentSessionId)?.title
+    }));
 
-    // Get AI response (includes built-in error handling and fallbacks)
+    // Track progress
+    progressManager.updateChatProgress(true, !currentSession);
+
+    setIsLoading(true);
+
+    // Get AI response
     const aiResponseContent = await generateAIResponse(conversationHistory);
 
     const aiResponse: Message = {
-      id: (Date.now() + 1).toString(),
+      id: generateMessageId(),
       content: aiResponseContent,
       isUser: false,
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, aiResponse]);
+    // Update session with AI response
+    setSessions(prev => {
+      const currentSession = prev.find(s => s.id === currentSessionId);
+      const updatedMessages = [...(currentSession?.messages || []), aiResponse];
+      return updateChatSession(prev, currentSessionId!, {
+        messages: updatedMessages
+      });
+    });
+
     setIsLoading(false);
   };
 
+  const handleQuickAction = (action: string) => {
+    switch (action) {
+      case 'voice':
+        toast({
+          title: "Voice Messages",
+          description: "Voice recording feature coming soon!",
+        });
+        break;
+      case 'favorites':
+        // Open favorites dialog (handled by the FavoritesDialog trigger)
+        break;
+      case 'search':
+        progressManager.trackFeatureUsage('global_search');
+        setGlobalSearchOpen(true);
+        break;
+      case 'export':
+        progressManager.trackFeatureUsage('export_chat');
+        if (activeSession) {
+          const content = [
+            `Chat: ${activeSession.title}`,
+            `Created: ${activeSession.createdAt.toLocaleDateString()}`,
+            `Messages: ${activeSession.messages.length}`,
+            '',
+            ...activeSession.messages.map(m =>
+              `[${m.timestamp.toLocaleTimeString()}] ${m.isUser ? 'You' : 'HagopAI'}: ${m.content}`
+            )
+          ].join('\n');
+
+          const blob = new Blob([content], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `HagopAI-${activeSession.title.replace(/[^a-zA-Z0-9]/g, '_')}.txt`;
+          a.click();
+          URL.revokeObjectURL(url);
+
+          toast({
+            title: "Chat Exported",
+            description: "Your conversation has been downloaded as a text file.",
+          });
+        } else {
+          toast({
+            title: "No Active Chat",
+            description: "Start a conversation first to export it.",
+            variant: "destructive"
+          });
+        }
+        break;
+      case 'calendar':
+        progressManager.trackFeatureUsage('armenian_calendar');
+        setCalendarOpen(true);
+        break;
+      case 'learning':
+        progressManager.trackFeatureUsage('learning_mode');
+        setLearningOpen(true);
+        break;
+      case 'themes':
+        progressManager.trackFeatureUsage('theme_customizer');
+        setThemesOpen(true);
+        break;
+      case 'analytics':
+        progressManager.trackFeatureUsage('analytics_dashboard');
+        setAnalyticsOpen(true);
+        break;
+      default:
+        console.log('Unknown action:', action);
+    }
+  };
+
+  const examplePrompts = [
+    {
+      icon: <Heart className="h-5 w-5" />,
+      title: "Family & Culture",
+      prompt: "Tell me about Armenian family traditions",
+      color: "text-red-500"
+    },
+    {
+      icon: <Coffee className="h-5 w-5" />,
+      title: "Daily Life",
+      prompt: "How do I maintain Armenian identity in diaspora?",
+      color: "text-orange-500"
+    },
+    {
+      icon: <BookOpen className="h-5 w-5" />,
+      title: "Language Help",
+      prompt: "Teach me some Western Armenian phrases",
+      color: "text-blue-500"
+    },
+    {
+      icon: <Users className="h-5 w-5" />,
+      title: "Business & Career",
+      prompt: "Career advice for Armenian professionals",
+      color: "text-green-500"
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5 transition-colors duration-300 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-5xl mx-auto min-h-[calc(100vh-2rem)] sm:min-h-[calc(100vh-3rem)] lg:min-h-[calc(100vh-4rem)] flex flex-col relative bg-card/50 rounded-2xl shadow-2xl border border-border/20 overflow-hidden">
-        {/* Modern Header */}
-        <header className="glass-effect border-b border-border/20 backdrop-blur-xl cultural-glow rounded-t-xl">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5 flex">
+      {/* Sidebar */}
+      <ChatSidebar
+        sessions={sessions}
+        activeSessionId={activeSessionId}
+        onNewChat={handleNewChat}
+        onSelectChat={handleSelectChat}
+        onDeleteChat={handleDeleteChat}
+        onRenameChat={handleRenameChat}
+        className="w-80 border-r border-border/20 bg-card/30 backdrop-blur-sm"
+      />
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-h-screen">
+        {/* Header */}
+        <header className="border-b border-border/20 bg-card/30 backdrop-blur-sm">
           <div className="flex items-center justify-between px-6 py-4">
-            <div className="flex items-center space-x-3 sm:space-x-6">
-              <div className="flex items-center space-x-2 sm:space-x-3">
-                <div className="relative group">
-                  <ArmenianIcon className="h-10 w-10 sm:h-12 sm:w-12" />
-                  <div className="absolute -top-1 -right-1 h-3 w-3 sm:h-4 sm:w-4 bg-gradient-armenian rounded-full flex items-center justify-center shadow-lg">
-                    <Sparkles className="h-2 w-2 sm:h-2.5 sm:w-2.5 text-white animate-pulse" />
+            <div className="flex items-center gap-4">
+              {/* Mobile Menu Trigger */}
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="lg:hidden"
+                  >
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-80 p-0">
+                  <div className="flex flex-col h-full">
+                    {/* Header */}
+                    <div className="p-4 border-b border-border/20">
+                      <Button
+                        onClick={handleNewChat}
+                        className="w-full gap-2 bg-gradient-armenian hover:bg-gradient-armenian/90 text-white shadow-lg"
+                        size="lg"
+                      >
+                        <Plus className="h-4 w-4" />
+                        New Chat
+                      </Button>
+
+                      {/* Search */}
+                      <div className="mt-3 relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder="Search chats..."
+                          className="pl-9 h-9"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Chat History */}
+                    <ScrollArea className="flex-1 px-2">
+                      <div className="space-y-1 p-2">
+                        {sessions.length === 0 ? (
+                          <div className="text-center py-8 text-muted-foreground">
+                            <MessageSquare className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                            <p className="text-sm">No chat history yet</p>
+                            <p className="text-xs mt-1 opacity-70">Start a conversation to see it here</p>
+                          </div>
+                        ) : (
+                          sessions.map(session => (
+                            <div
+                              key={`mobile-${session.id}`}
+                              className="p-3 rounded-lg cursor-pointer hover:bg-accent/50 transition-all"
+                              onClick={() => handleSelectChat(session.id)}
+                            >
+                              <h4 className="text-sm font-medium truncate">{session.title}</h4>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {session.messages.length} messages
+                              </p>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </ScrollArea>
+
+                    {/* Footer */}
+                    <div className="p-4 border-t border-border/20">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Bot className="h-4 w-4" />
+                        <span>{sessions.length} chat{sessions.length !== 1 ? 's' : ''}</span>
+                      </div>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+              
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <ArmenianIcon className="h-10 w-10" />
+                  <div className="absolute -top-1 -right-1 h-4 w-4 bg-gradient-armenian rounded-full flex items-center justify-center">
+                    <Sparkles className="h-2.5 w-2.5 text-white animate-pulse" />
                   </div>
                 </div>
                 <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold gradient-text tracking-tight">
-                    HagopAI
-                  </h1>
-                  <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1 sm:gap-2 font-medium">
-                    <Bot className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                    <span className="hidden sm:inline">Your Armenian Cultural Companion</span>
-                    <span className="sm:hidden">Armenian AI</span>
-                    <Globe className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-accent" />
+                  <h1 className="text-2xl font-bold gradient-text">HagopAI</h1>
+                  <p className="text-sm text-muted-foreground flex items-center gap-2">
+                    <Bot className="h-3.5 w-3.5" />
+                    Your Armenian Cultural Companion
+                    <Globe className="h-3.5 w-3.5 text-accent" />
                   </p>
                 </div>
               </div>
 
-              <div className="hidden lg:flex items-center space-x-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-armenian/10 border border-primary/20">
-                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                  <span className="font-medium">AI Ready</span>
+              {activeSession && (
+                <div className="hidden md:flex items-center gap-3 ml-6 pl-6 border-l border-border/20">
+                  <MessageCircle className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium text-sm">{activeSession.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {activeSession.messages.length} messages
+                    </p>
+                  </div>
                 </div>
-                <div className="text-xs opacity-70">
-                  English • Western Armenian
-                </div>
-              </div>
+              )}
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-3">
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>Live AI</span>
+                <span className="text-sm font-medium text-green-700 dark:text-green-400">Live AI</span>
               </div>
-              {messages.length > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleClearChat}
-                  className="gap-2 text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  <span className="hidden sm:inline">Clear Chat</span>
+              {/* Debug button to clear all data */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  localStorage.clear();
+                  setSessions([]);
+                  setActiveSessionId(null);
+                  toast({
+                    title: "Data Cleared",
+                    description: "All chat history has been cleared.",
+                  });
+                }}
+                className="text-xs opacity-50 hover:opacity-100"
+              >
+                Clear All
+              </Button>
+              <FavoritesDialog>
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <Star className="h-4 w-4" />
+                  <span className="hidden sm:inline">Favorites</span>
                 </Button>
-              )}
+              </FavoritesDialog>
               <UserSettings />
               <ThemeToggle />
             </div>
           </div>
         </header>
 
-        {/* Hero Section */}
-        <div className="px-6 py-8 text-center border-b border-border/10 bg-gradient-hero">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-2 sm:mb-3 leading-tight">
-              Parev! Your Armenian Friend in the Digital World
-            </h2>
-            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed w-full mx-auto">
-              Whether you need help with Armenian traditions, family questions, work advice, or just want to chat about life -
-              HagopAI is here for you. Talk to me in English or Western Armenian
-              (like <span className="font-medium text-primary">"parev"</span> or <span className="font-medium text-primary">"shnorhakaloutyoun"</span>) and let's have a real conversation!
-            </p>
-          </div>
-        </div>
-
         {/* Chat Area */}
-        <Card className="flex-1 mt-6 mb-6 flex flex-col overflow-hidden shadow-2xl warm-card cultural-glow rounded-xl">
-          <div className="flex-1 overflow-y-auto p-6 space-y-4 max-h-[60vh]">
-            {messages.map((message) => (
-              <ChatMessage
-                key={message.id}
-                message={message.content}
-                isUser={message.isUser}
-                timestamp={message.timestamp}
-              />
-            ))}
-            {isLoading && <LoadingIndicator />}
+        <div className="flex-1 flex flex-col">
+          {messages.length === 0 ? (
+            /* Welcome Screen */
+            <div className="flex-1 flex flex-col items-center justify-center p-8">
+              <div className="max-w-2xl mx-auto text-center space-y-8">
+                <div className="space-y-4">
+                  <div className="mx-auto w-20 h-20 bg-gradient-armenian rounded-full flex items-center justify-center shadow-2xl">
+                    <ArmenianIcon className="h-12 w-12 text-white" />
+                  </div>
+                  <h2 className="text-3xl font-bold gradient-text">Parev! Welcome to HagopAI</h2>
+                  <p className="text-xl text-muted-foreground leading-relaxed">
+                    Your Armenian friend in the digital world. Ask me about culture, family, business, 
+                    language - or just chat about life!
+                  </p>
+                </div>
 
-            {/* Scroll target */}
-            <div ref={messagesEndRef} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
+                  {examplePrompts.map((example, index) => (
+                    <Card 
+                      key={index}
+                      className="p-6 cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105 group bg-gradient-to-br from-card to-card/50"
+                      onClick={() => handleSendMessage(example.prompt)}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className={`${example.color} group-hover:scale-110 transition-transform`}>
+                          {example.icon}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-sm mb-2">{example.title}</h3>
+                          <p className="text-sm text-muted-foreground leading-relaxed">
+                            {example.prompt}
+                          </p>
+                          <ArrowRight className="h-4 w-4 mt-3 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
 
-            {/* Empty state with tips */}
-            {messages.length === 0 && !isLoading && (
-              <div className="mt-8 text-center text-muted-foreground">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
-                  <div className="p-4 sm:p-5 rounded-xl warm-card hover:shadow-lg transition-all duration-300 group hover:scale-105">
-                    <Globe className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3 text-primary group-hover:scale-110 transition-transform" />
-                    <div className="text-sm font-semibold mb-1">Armenian Culture</div>
-                    <div className="text-xs opacity-80 leading-relaxed">Traditions, history, customs, holidays</div>
+                <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <Lightbulb className="h-4 w-4" />
+                    <span>Powered by AI</span>
                   </div>
-                  <div className="p-4 sm:p-5 rounded-xl warm-card hover:shadow-lg transition-all duration-300 group hover:scale-105">
-                    <Bot className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3 text-accent group-hover:scale-110 transition-transform" />
-                    <div className="text-sm font-semibold mb-1">Family & Life</div>
-                    <div className="text-xs opacity-80 leading-relaxed">Advice, relationships, wisdom, values</div>
-                  </div>
-                  <div className="p-4 sm:p-5 rounded-xl warm-card hover:shadow-lg transition-all duration-300 group hover:scale-105">
-                    <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3 text-armenian-orange group-hover:scale-110 transition-transform" />
-                    <div className="text-sm font-semibold mb-1">Language Help</div>
-                    <div className="text-xs opacity-80 leading-relaxed">Armenian learning, translation, culture</div>
-                  </div>
-                  <div className="p-4 sm:p-5 rounded-xl warm-card hover:shadow-lg transition-all duration-300 group hover:scale-105">
-                    <Bot className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3 text-primary group-hover:scale-110 transition-transform" />
-                    <div className="text-sm font-semibold mb-1">Business & Tech</div>
-                    <div className="text-xs opacity-80 leading-relaxed">Career, programming, startups, advice</div>
+                  <div className="w-1 h-1 bg-muted-foreground rounded-full"></div>
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4" />
+                    <span>English & Western Armenian</span>
                   </div>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            /* Chat Messages */
+            <div className="flex-1 overflow-y-auto">
+              <div className="max-w-4xl mx-auto p-6 space-y-6">
+                {messages.map((message) => (
+                  <ChatMessage
+                    key={message.id}
+                    message={message.content}
+                    isUser={message.isUser}
+                    timestamp={message.timestamp}
+                    messageId={message.id}
+                    sessionId={activeSessionId || undefined}
+                    sessionTitle={activeSession?.title || 'Untitled Chat'}
+                  />
+                ))}
+                {isLoading && <LoadingIndicator />}
+                <div ref={messagesEndRef} />
+              </div>
+            </div>
+          )}
 
-          <ChatInput onSend={handleSendMessage} isLoading={isLoading} />
-        </Card>
+          {/* Chat Input */}
+          <div className="border-t border-border/20 bg-card/30 backdrop-blur-sm">
+            <div className="max-w-4xl mx-auto">
+              <ChatInput onSend={handleSendMessage} isLoading={isLoading} />
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Quick Actions Panel */}
+      <QuickActions onAction={handleQuickAction} />
+
+      {/* All Feature Dialogs */}
+      <GlobalSearchDialog
+        open={globalSearchOpen}
+        onOpenChange={setGlobalSearchOpen}
+        onSelectChat={(sessionId) => {
+          setActiveSessionId(sessionId);
+          setGlobalSearchOpen(false);
+        }}
+      />
+
+      <ArmenianCalendar
+        open={calendarOpen}
+        onOpenChange={setCalendarOpen}
+      />
+
+      <LearningMode
+        open={learningOpen}
+        onOpenChange={setLearningOpen}
+      />
+
+      <ThemeCustomizer
+        open={themesOpen}
+        onOpenChange={setThemesOpen}
+      />
+
+      <AnalyticsDashboard
+        open={analyticsOpen}
+        onOpenChange={setAnalyticsOpen}
+      />
+
+      {/* Achievement Notifications */}
+      <AchievementNotification />
     </div>
   );
 };
