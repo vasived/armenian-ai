@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { ArmenianIcon } from "@/components/ArmenianIcon";
 import { cn } from "@/lib/utils";
+import { progressManager } from "@/lib/progressManager";
 
 interface Theme {
   id: string;
