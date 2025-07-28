@@ -199,10 +199,19 @@ export const LearningMode = ({ open, onOpenChange }: LearningModeProps) => {
     setSelectedLesson(lesson);
     setCurrentPhraseIndex(0);
     setShowTranslation(false);
+    setLessonStartTime(new Date());
+    setPhraseScores([]);
+
+    // Track feature usage
+    progressManager.trackFeatureUsage('learning_mode');
   };
 
   const nextPhrase = () => {
     if (selectedLesson && currentPhraseIndex < selectedLesson.phrases.length - 1) {
+      // Score the current phrase (better score if translation wasn't shown immediately)
+      const score = showTranslation ? 70 : 100;
+      setPhraseScores(prev => [...prev, score]);
+
       setCurrentPhraseIndex(currentPhraseIndex + 1);
       setShowTranslation(false);
     }
@@ -212,14 +221,39 @@ export const LearningMode = ({ open, onOpenChange }: LearningModeProps) => {
     if (currentPhraseIndex > 0) {
       setCurrentPhraseIndex(currentPhraseIndex - 1);
       setShowTranslation(false);
+      // Remove the last score if going back
+      setPhraseScores(prev => prev.slice(0, -1));
     }
   };
 
   const completeLesson = () => {
-    if (selectedLesson) {
-      saveProgress(selectedLesson.id, true);
+    if (selectedLesson && lessonStartTime) {
+      // Calculate final score and time
+      const finalScore = showTranslation ? 70 : 100;
+      const allScores = [...phraseScores, finalScore];
+      const avgScore = Math.round(allScores.reduce((sum, score) => sum + score, 0) / allScores.length);
+
+      const timeSpent = Math.round((Date.now() - lessonStartTime.getTime()) / (1000 * 60)); // minutes
+
+      // Update progress through progressManager
+      progressManager.updateLessonProgress(selectedLesson.id, true, timeSpent, avgScore);
+
+      toast({
+        title: "Lesson Completed! 🎉",
+        description: `Score: ${avgScore}% | Time: ${timeSpent} minutes`,
+      });
+
       setSelectedLesson(null);
     }
+  };
+
+  const resetAllProgress = () => {
+    progressManager.resetLearningProgress();
+    setShowResetConfirm(false);
+    toast({
+      title: "Progress Reset",
+      description: "All learning progress has been reset. Start fresh!",
+    });
   };
 
   const completedLessons = Object.values(lessonProgress).filter(Boolean).length;
