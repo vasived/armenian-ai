@@ -518,41 +518,59 @@ export const LearningMode = ({ open, onOpenChange }: LearningModeProps) => {
                   )}
                   onClick={() => startLesson(lesson)}
                 >
-                  <div className="space-y-4">
+                  {/* Animated background gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 -skew-x-12 transform translate-x-full group-hover:-translate-x-full" />
+
+                  <div className="relative space-y-4">
                     {/* Header */}
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
                         <div className={cn(
-                          "p-2 rounded-lg text-white",
+                          "p-3 rounded-xl text-white shadow-lg transition-all duration-300",
+                          "group-hover:scale-110 group-hover:shadow-xl",
                           getCategoryColor(lesson.category)
                         )}>
                           {getCategoryIcon(lesson.category)}
                         </div>
                         <div>
-                          <h3 className="font-semibold">{lesson.title}</h3>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge 
-                              variant="outline" 
+                          <h3 className="font-bold text-lg group-hover:text-primary transition-colors">
+                            {lesson.title}
+                          </h3>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge
+                              variant="outline"
                               className={cn(
-                                "text-xs text-white border-0",
+                                "text-xs text-white border-0 font-semibold",
                                 getDifficultyColor(lesson.difficulty)
                               )}
                             >
                               {lesson.difficulty}
                             </Badge>
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
                               <Clock className="h-3 w-3" />
                               {lesson.duration}min
                             </div>
                           </div>
                         </div>
                       </div>
-                      
-                      {isCompleted ? (
-                        <CheckCircle className="h-5 w-5 text-green-500" />
-                      ) : (
-                        <Play className="h-5 w-5 text-muted-foreground" />
-                      )}
+
+                      <div className="flex flex-col items-center gap-2">
+                        {isCompleted ? (
+                          <div className="text-center">
+                            <CheckCircle className="h-6 w-6 text-green-500 animate-pulse" />
+                            <div className="text-xs font-semibold text-green-600 dark:text-green-400">
+                              Complete
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-center group-hover:scale-110 transition-transform">
+                            <Play className="h-6 w-6 text-primary opacity-60 group-hover:opacity-100" />
+                            <div className="text-xs font-semibold text-primary opacity-60 group-hover:opacity-100">
+                              Start
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {/* Description */}
