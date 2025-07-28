@@ -4,10 +4,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { 
-  TrendingUp, 
-  MessageSquare, 
-  Clock, 
+import {
+  TrendingUp,
+  MessageSquare,
+  Clock,
   Calendar,
   Star,
   Heart,
@@ -17,12 +17,17 @@ import {
   Activity,
   Award,
   Target,
-  Zap
+  Zap,
+  Trophy,
+  Flame,
+  BookOpen,
+  Palette
 } from "lucide-react";
 import { loadChatSessions } from "@/lib/chatHistory";
 import { loadFavorites } from "@/lib/favorites";
 import { ArmenianIcon } from "@/components/ArmenianIcon";
 import { cn } from "@/lib/utils";
+import { progressManager, Achievement } from "@/lib/progressManager";
 
 interface AnalyticsData {
   totalChats: number;
