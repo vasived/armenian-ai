@@ -277,15 +277,19 @@ const Index = () => {
         }
         break;
       case 'calendar':
+        progressManager.trackFeatureUsage('armenian_calendar');
         setCalendarOpen(true);
         break;
       case 'learning':
+        progressManager.trackFeatureUsage('learning_mode');
         setLearningOpen(true);
         break;
       case 'themes':
+        progressManager.trackFeatureUsage('theme_customizer');
         setThemesOpen(true);
         break;
       case 'analytics':
+        progressManager.trackFeatureUsage('analytics_dashboard');
         setAnalyticsOpen(true);
         break;
       default:
