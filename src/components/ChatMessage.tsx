@@ -167,9 +167,9 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
         )}>
           {/* Message Text */}
           <div className="space-y-2">
-            <p className="text-sm leading-relaxed whitespace-pre-wrap">
-              {message}
-            </p>
+            <div className="text-sm leading-relaxed">
+              {parseMarkdown(message)}
+            </div>
 
             {/* Timestamp and Actions */}
             <div className={cn(
