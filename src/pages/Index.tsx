@@ -138,7 +138,7 @@ const Index = () => {
 
     // Add user message
     const userMessage: Message = {
-      id: Date.now().toString(),
+      id: generateMessageId(),
       content,
       isUser: true,
       timestamp: new Date()
