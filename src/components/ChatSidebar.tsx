@@ -185,8 +185,8 @@ export const ChatSidebar = ({
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="p-4 border-b border-border/20">
-        <Button 
-          onClick={onNewChat}
+        <Button
+          onClick={handleNewChatWithAnimation}
           className="w-full gap-2 bg-gradient-armenian hover:bg-gradient-armenian/90 text-white shadow-lg"
           size="lg"
         >
