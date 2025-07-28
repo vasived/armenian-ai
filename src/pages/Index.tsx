@@ -40,14 +40,15 @@ import {
   Star
 } from "lucide-react";
 import { ArmenianIcon } from "@/components/ArmenianIcon";
-import { 
-  ChatSession, 
+import {
+  ChatSession,
   Message,
   saveChatSessions,
   loadChatSessions,
   getActiveChat,
   setActiveChat,
   generateChatTitle,
+  generateContextualTitle,
   createNewChatSession,
   updateChatSession,
   deleteChatSession
