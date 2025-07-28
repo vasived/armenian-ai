@@ -55,9 +55,11 @@ const themes: Theme[] = [
     },
     cssVars: {
       '--primary': '355 78% 60%',
+      '--primary-foreground': '0 0% 98%',
       '--secondary': '220 14% 96%',
+      '--secondary-foreground': '224 71% 4%',
       '--accent': '213 94% 68%',
-      '--background': '0 0% 100%'
+      '--accent-foreground': '0 0% 98%'
     },
     icon: <ArmenianIcon className="h-4 w-4" />
   },
