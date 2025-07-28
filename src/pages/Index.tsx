@@ -132,8 +132,8 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5 transition-colors duration-300">
-      <div className="max-w-6xl mx-auto min-h-screen flex flex-col relative px-4 py-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5 transition-colors duration-300 p-4 sm:p-6 lg:p-8">
+      <div className="max-w-5xl mx-auto min-h-[calc(100vh-2rem)] sm:min-h-[calc(100vh-3rem)] lg:min-h-[calc(100vh-4rem)] flex flex-col relative bg-card/50 rounded-2xl shadow-2xl border border-border/20 overflow-hidden">
         {/* Modern Header */}
         <header className="glass-effect border-b border-border/20 backdrop-blur-xl cultural-glow rounded-t-xl">
           <div className="flex items-center justify-between px-6 py-4">
