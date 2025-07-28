@@ -170,7 +170,7 @@ const Index = () => {
     const aiResponseContent = await generateAIResponse(conversationHistory);
 
     const aiResponse: Message = {
-      id: (Date.now() + 1).toString(),
+      id: generateMessageId(),
       content: aiResponseContent,
       isUser: false,
       timestamp: new Date()
