@@ -128,15 +128,16 @@ export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardPro
       return count > most.count ? { day, count } : most;
     }, { day: 'No activity yet', count: 0 }).day;
 
-    // Analyze cultural topics
+    // Analyze cultural topics with comprehensive keywords
     const culturalKeywords = {
-      'Family': ['family', 'mama', 'haba', 'tatik', 'babik', 'yeghbayr', 'khoyr'],
-      'Food': ['food', 'keretsek', 'hamov', 'dolma', 'pilaf', 'lavash', 'baklava'],
-      'Language': ['armenian', 'parev', 'shnorhakaloutyoun', 'inch bes', 'language'],
-      'Culture': ['culture', 'tradition', 'armenian', 'heritage', 'customs'],
-      'Business': ['work', 'business', 'professional', 'career', 'job'],
-      'Religion': ['church', 'christmas', 'easter', 'prayer', 'religious'],
-      'History': ['history', 'genocide', 'armenia', 'historical', 'heritage']
+      'Family': ['family', 'mama', 'haba', 'tatik', 'babik', 'yeghbayr', 'khoyr', 'entanik', 'azgakan', 'relatives', 'cousin', 'nephew', 'niece'],
+      'Food': ['food', 'keretsek', 'hamov', 'dolma', 'pilaf', 'lavash', 'baklava', 'kebab', 'khorovats', 'manti', 'lahmajoun', 'khash', 'harissa'],
+      'Language': ['armenian', 'parev', 'shnorhakaloutyoun', 'inch bes', 'language', 'hayeren', 'western armenian', 'eastern armenian', 'alphabet', 'grammar'],
+      'Culture': ['culture', 'tradition', 'armenian', 'heritage', 'customs', 'diaspora', 'identity', 'art', 'music', 'dance', 'vardavar', 'artsakh'],
+      'Business': ['work', 'business', 'professional', 'career', 'job', 'entrepreneur', 'startup', 'technology', 'programming', 'engineering'],
+      'Religion': ['church', 'christmas', 'easter', 'prayer', 'religious', 'apostolic', 'catholic', 'protestant', 'surb', 'feast', 'liturgy'],
+      'History': ['history', 'genocide', 'armenia', 'historical', 'heritage', 'ararat', 'yerevan', 'cilicia', 'great armenia', 'masis', 'ani'],
+      'Learning': ['learn', 'study', 'lesson', 'practice', 'education', 'school', 'university', 'knowledge', 'skill', 'fluent']
     };
 
     const topicCounts: Record<string, number> = {};
