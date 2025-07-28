@@ -67,6 +67,9 @@ interface AnalyticsDashboardProps {
 export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardProps) => {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [learningStats, setLearningStats] = useState<any>({});
+  const [usageStats, setUsageStats] = useState<any>({});
 
   useEffect(() => {
     if (open) {
