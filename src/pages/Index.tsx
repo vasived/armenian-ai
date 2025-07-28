@@ -606,6 +606,9 @@ const Index = () => {
         show={voicePopupOpen}
         onClose={() => setVoicePopupOpen(false)}
       />
+
+      {/* Notification System */}
+      <notifications.NotificationComponent />
     </div>
   );
 };
