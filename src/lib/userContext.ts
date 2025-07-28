@@ -120,13 +120,13 @@ export const generateUserContextPrompt = (preferences: UserPreferences): string 
       break;
   }
 
-  // Armenian script preference
+  // Armenian script preference with strict enforcement
   switch (preferences.armenianScript) {
     case 'transliteration':
-      contextParts.push('When using Armenian words, use English letters (transliteration) like "parev", "shnorhakaloutyoun".');
+      contextParts.push('MANDATORY: When using Armenian words, ALWAYS use English letters (transliteration) like "parev", "shnorhakaloutyoun". NEVER use Armenian script letters.');
       break;
     case 'armenian-letters':
-      contextParts.push('When using Armenian words, use proper Armenian script letters like "Պարեւ", "շնոր��ակալություն".');
+      contextParts.push('MANDATORY: When using Armenian words, ALWAYS use proper Armenian script letters like "Պարեւ", "շնոր��ակալություն". NEVER use English letters for Armenian words.');
       break;
   }
 
