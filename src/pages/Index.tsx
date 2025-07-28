@@ -132,11 +132,11 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5 transition-colors duration-300">
-      <div className="w-full h-screen flex flex-col relative">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5 transition-colors duration-300 p-4 sm:p-6 lg:p-8">
+      <div className="max-w-5xl mx-auto min-h-[calc(100vh-2rem)] sm:min-h-[calc(100vh-3rem)] lg:min-h-[calc(100vh-4rem)] flex flex-col relative bg-card/50 rounded-2xl shadow-2xl border border-border/20 overflow-hidden">
         {/* Modern Header */}
-        <header className="glass-effect border-b border-border/20 backdrop-blur-xl cultural-glow">
-          <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
+        <header className="glass-effect border-b border-border/20 backdrop-blur-xl cultural-glow rounded-t-xl">
+          <div className="flex items-center justify-between px-6 py-4">
             <div className="flex items-center space-x-3 sm:space-x-6">
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <div className="relative group">
@@ -192,8 +192,8 @@ const Index = () => {
         </header>
 
         {/* Hero Section */}
-        <div className="px-4 sm:px-6 py-6 sm:py-10 text-center border-b border-border/10 bg-gradient-hero">
-          <div className="w-full mx-auto">
+        <div className="px-6 py-8 text-center border-b border-border/10 bg-gradient-hero">
+          <div className="max-w-4xl mx-auto">
             <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-2 sm:mb-3 leading-tight">
               Parev! Your Armenian Friend in the Digital World
             </h2>
@@ -206,8 +206,8 @@ const Index = () => {
         </div>
 
         {/* Chat Area */}
-        <Card className="flex-1 m-3 sm:m-6 flex flex-col overflow-hidden shadow-2xl warm-card cultural-glow">
-          <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-3 sm:space-y-4">
+        <Card className="flex-1 mt-6 mb-6 flex flex-col overflow-hidden shadow-2xl warm-card cultural-glow rounded-xl">
+          <div className="flex-1 overflow-y-auto p-6 space-y-4 max-h-[60vh]">
             {messages.map((message) => (
               <ChatMessage
                 key={message.id}
@@ -223,8 +223,8 @@ const Index = () => {
 
             {/* Empty state with tips */}
             {messages.length === 0 && !isLoading && (
-              <div className="mt-6 sm:mt-10 text-center text-muted-foreground">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full mx-auto">
+              <div className="mt-8 text-center text-muted-foreground">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
                   <div className="p-4 sm:p-5 rounded-xl warm-card hover:shadow-lg transition-all duration-300 group hover:scale-105">
                     <Globe className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3 text-primary group-hover:scale-110 transition-transform" />
                     <div className="text-sm font-semibold mb-1">Armenian Culture</div>
