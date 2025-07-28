@@ -136,7 +136,7 @@ export const ChatSidebar = ({
                     .filter(session => formatDate(session.updatedAt) === "Today")
                     .map(session => (
                       <ChatSessionItem
-                        key={session.id}
+                        key={`${keyPrefix}-${session.id}`}
                         session={session}
                         isActive={session.id === activeSessionId}
                         isEditing={editingSessionId === session.id}
@@ -163,7 +163,7 @@ export const ChatSidebar = ({
                     .filter(session => formatDate(session.updatedAt) === "Yesterday")
                     .map(session => (
                       <ChatSessionItem
-                        key={session.id}
+                        key={`${keyPrefix}-${session.id}`}
                         session={session}
                         isActive={session.id === activeSessionId}
                         isEditing={editingSessionId === session.id}
@@ -190,7 +190,7 @@ export const ChatSidebar = ({
                     .filter(session => !["Today", "Yesterday"].includes(formatDate(session.updatedAt)))
                     .map(session => (
                       <ChatSessionItem
-                        key={session.id}
+                        key={`${keyPrefix}-${session.id}`}
                         session={session}
                         isActive={session.id === activeSessionId}
                         isEditing={editingSessionId === session.id}
