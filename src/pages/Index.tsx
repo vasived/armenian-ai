@@ -206,8 +206,8 @@ const Index = () => {
         </div>
 
         {/* Chat Area */}
-        <Card className="flex-1 m-3 sm:m-6 flex flex-col overflow-hidden shadow-2xl warm-card cultural-glow">
-          <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-3 sm:space-y-4">
+        <Card className="flex-1 mt-6 mb-6 flex flex-col overflow-hidden shadow-2xl warm-card cultural-glow rounded-xl">
+          <div className="flex-1 overflow-y-auto p-6 space-y-4 max-h-[60vh]">
             {messages.map((message) => (
               <ChatMessage
                 key={message.id}
