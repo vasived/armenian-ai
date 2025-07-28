@@ -6,6 +6,57 @@ import { ArmenianIcon } from "@/components/ArmenianIcon";
 import { addToFavorites, removeFromFavorites, isFavorited } from "@/lib/favorites";
 import { useNotifications } from "@/components/NotificationSystem";
 
+// Simple markdown parser for basic formatting
+const parseMarkdown = (text: string) => {
+  // Split by line breaks to preserve them
+  const lines = text.split('\n');
+
+  return lines.map((line, lineIndex) => {
+    const parts = [];
+    let remaining = line;
+    let partIndex = 0;
+
+    while (remaining.length > 0) {
+      // Look for **bold** text
+      const boldMatch = remaining.match(/\*\*(.*?)\*\*/);
+      if (boldMatch && boldMatch.index !== undefined) {
+        // Add text before the bold
+        if (boldMatch.index > 0) {
+          parts.push(<span key={`${lineIndex}-${partIndex++}`}>{remaining.slice(0, boldMatch.index)}</span>);
+        }
+        // Add the bold text
+        parts.push(<strong key={`${lineIndex}-${partIndex++}`} className="font-bold">{boldMatch[1]}</strong>);
+        remaining = remaining.slice(boldMatch.index + boldMatch[0].length);
+        continue;
+      }
+
+      // Look for *italic* text
+      const italicMatch = remaining.match(/\*(.*?)\*/);
+      if (italicMatch && italicMatch.index !== undefined) {
+        // Add text before the italic
+        if (italicMatch.index > 0) {
+          parts.push(<span key={`${lineIndex}-${partIndex++}`}>{remaining.slice(0, italicMatch.index)}</span>);
+        }
+        // Add the italic text
+        parts.push(<em key={`${lineIndex}-${partIndex++}`} className="italic">{italicMatch[1]}</em>);
+        remaining = remaining.slice(italicMatch.index + italicMatch[0].length);
+        continue;
+      }
+
+      // No more formatting found, add the rest
+      parts.push(<span key={`${lineIndex}-${partIndex++}`}>{remaining}</span>);
+      break;
+    }
+
+    return (
+      <span key={lineIndex}>
+        {parts}
+        {lineIndex < lines.length - 1 && <br />}
+      </span>
+    );
+  });
+};
+
 interface ChatMessageProps {
   message: string;
   isUser: boolean;
