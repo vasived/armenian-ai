@@ -500,11 +500,13 @@ export const LearningMode = ({ open, onOpenChange }: LearningModeProps) => {
         <ScrollArea className="flex-1">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-1">
             {lessons.map((lesson) => {
-              const isCompleted = lessonProgress[lesson.id];
-              
+              const isCompleted = isLessonCompleted(lesson.id);
+              const attempts = getLessonAttempts(lesson.id);
+              const score = getLessonScore(lesson.id);
+
               return (
-                <Card 
-                  key={lesson.id} 
+                <Card
+                  key={lesson.id}
                   className={cn(
                     "p-6 cursor-pointer transition-all duration-200",
                     "hover:shadow-lg hover:scale-105",
