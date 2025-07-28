@@ -5,11 +5,11 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  BookOpen, 
-  Play, 
-  CheckCircle, 
-  Clock, 
+import {
+  BookOpen,
+  Play,
+  CheckCircle,
+  Clock,
   Star,
   ArrowRight,
   Volume2,
@@ -17,10 +17,17 @@ import {
   Brain,
   Heart,
   Coffee,
-  Users
+  Users,
+  RotateCcw,
+  Trash2,
+  TrendingUp,
+  Target,
+  Zap
 } from "lucide-react";
 import { ArmenianIcon } from "@/components/ArmenianIcon";
 import { cn } from "@/lib/utils";
+import { progressManager } from "@/lib/progressManager";
+import { useToast } from "@/hooks/use-toast";
 
 interface Lesson {
   id: string;
