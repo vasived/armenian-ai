@@ -429,16 +429,71 @@ export const LearningMode = ({ open, onOpenChange }: LearningModeProps) => {
           </Card>
         )}
 
+        {/* Enhanced Progress Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-500 rounded-lg">
+                <BookOpen className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{completedLessons}</p>
+                <p className="text-sm text-muted-foreground">Lessons</p>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-500 rounded-lg">
+                <Clock className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{learningStats.totalTimeSpent}</p>
+                <p className="text-sm text-muted-foreground">Minutes</p>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-orange-500 rounded-lg">
+                <Zap className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{learningStats.currentStreak}</p>
+                <p className="text-sm text-muted-foreground">Day Streak</p>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-500 rounded-lg">
+                <Target className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{learningStats.averageScorePerLesson}%</p>
+                <p className="text-sm text-muted-foreground">Avg Score</p>
+              </div>
+            </div>
+          </Card>
+        </div>
+
         {/* Overall Progress */}
         <Card className="p-4">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold">Your Progress</h3>
+            <h3 className="font-semibold">Overall Progress</h3>
             <div className="flex items-center gap-2">
               <Award className="h-4 w-4 text-yellow-500" />
               <span className="text-sm">{Math.round(overallProgress)}% Complete</span>
             </div>
           </div>
           <Progress value={overallProgress} className="h-3" />
+          <div className="flex justify-between text-xs text-muted-foreground mt-2">
+            <span>Longest streak: {learningStats.longestStreak} days</span>
+            <span>{totalLessons - completedLessons} lessons remaining</span>
+          </div>
         </Card>
 
         {/* Lessons Grid */}
