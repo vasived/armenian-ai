@@ -48,9 +48,37 @@ export const ChatSidebar = ({
   const [deletingChatId, setDeletingChatId] = useState<string | null>(null);
   const previousSessionsRef = useRef<ChatSession[]>(sessions);
 
-  const sortedSessions = [...sessions].sort((a, b) => 
+  // Detect new chats for animation
+  useEffect(() => {
+    const prevIds = new Set(previousSessionsRef.current.map(s => s.id));
+    const newChat = sessions.find(s => !prevIds.has(s.id));
+
+    if (newChat) {
+      setNewChatId(newChat.id);
+      setTimeout(() => setNewChatId(null), 500); // Remove animation class after animation
+    }
+
+    previousSessionsRef.current = sessions;
+  }, [sessions]);
+
+  const sortedSessions = [...sessions].sort((a, b) =>
     new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
   );
+
+  // Enhanced delete handler with animation
+  const handleDeleteWithAnimation = (sessionId: string) => {
+    setDeletingChatId(sessionId);
+    setTimeout(() => {
+      onDeleteChat(sessionId);
+      setDeletingChatId(null);
+    }, 300); // Wait for animation to complete
+  };
+
+  // Enhanced new chat handler with animation
+  const handleNewChatWithAnimation = () => {
+    onNewChat();
+    // The animation will be triggered by useEffect when sessions changes
+  };
 
   const filteredSessions = sortedSessions.filter(session =>
     session.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
