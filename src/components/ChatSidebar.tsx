@@ -239,10 +239,12 @@ export const ChatSidebar = ({
                         editingTitle={editingTitle}
                         onSelect={() => onSelectChat(session.id)}
                         onEdit={() => startEditing(session)}
-                        onDelete={() => onDeleteChat(session.id)}
+                        onDelete={() => handleDeleteWithAnimation(session.id)}
                         onSaveEdit={saveEditing}
                         onCancelEdit={cancelEditing}
                         onTitleChange={setEditingTitle}
+                        isNew={newChatId === session.id}
+                        isDeleting={deletingChatId === session.id}
                       />
                     ))}
                 </div>
@@ -266,10 +268,12 @@ export const ChatSidebar = ({
                         editingTitle={editingTitle}
                         onSelect={() => onSelectChat(session.id)}
                         onEdit={() => startEditing(session)}
-                        onDelete={() => onDeleteChat(session.id)}
+                        onDelete={() => handleDeleteWithAnimation(session.id)}
                         onSaveEdit={saveEditing}
                         onCancelEdit={cancelEditing}
                         onTitleChange={setEditingTitle}
+                        isNew={newChatId === session.id}
+                        isDeleting={deletingChatId === session.id}
                       />
                     ))}
                 </div>
@@ -293,10 +297,12 @@ export const ChatSidebar = ({
                         editingTitle={editingTitle}
                         onSelect={() => onSelectChat(session.id)}
                         onEdit={() => startEditing(session)}
-                        onDelete={() => onDeleteChat(session.id)}
+                        onDelete={() => handleDeleteWithAnimation(session.id)}
                         onSaveEdit={saveEditing}
                         onCancelEdit={cancelEditing}
                         onTitleChange={setEditingTitle}
+                        isNew={newChatId === session.id}
+                        isDeleting={deletingChatId === session.id}
                       />
                     ))}
                 </div>
