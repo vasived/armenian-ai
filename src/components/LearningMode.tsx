@@ -508,9 +508,13 @@ export const LearningMode = ({ open, onOpenChange }: LearningModeProps) => {
                 <Card
                   key={lesson.id}
                   className={cn(
-                    "p-6 cursor-pointer transition-all duration-200",
-                    "hover:shadow-lg hover:scale-105",
-                    isCompleted && "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800"
+                    "relative p-6 cursor-pointer transition-all duration-300 group overflow-hidden",
+                    "hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1",
+                    "border-2 hover:border-primary/50",
+                    isCompleted
+                      ? "bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border-green-300 dark:border-green-700"
+                      : "hover:bg-gradient-to-br hover:from-primary/5 hover:to-accent/10",
+                    !isCompleted && "border-dashed border-muted-foreground/20 hover:border-solid"
                   )}
                   onClick={() => startLesson(lesson)}
                 >
