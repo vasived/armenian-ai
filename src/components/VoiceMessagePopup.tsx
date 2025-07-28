@@ -42,7 +42,7 @@ export const VoiceMessagePopup = ({ show, onClose }: VoiceMessagePopupProps) => 
   if (!shouldRender) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-[100] pointer-events-none">
+    <div className="fixed bottom-6 left-6 z-[100] pointer-events-none">
       <Card className={cn(
         "p-6 max-w-sm pointer-events-auto",
         "bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30",
