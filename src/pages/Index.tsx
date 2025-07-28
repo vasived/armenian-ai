@@ -537,6 +537,9 @@ const Index = () => {
           </div>
         </div>
       </div>
+
+      {/* Quick Actions Panel */}
+      <QuickActions onAction={handleQuickAction} />
     </div>
   );
 };
