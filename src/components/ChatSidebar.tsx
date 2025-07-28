@@ -28,6 +28,7 @@ interface ChatSidebarProps {
   onDeleteChat: (sessionId: string) => void;
   onRenameChat: (sessionId: string, newTitle: string) => void;
   className?: string;
+  keyPrefix?: string;
 }
 
 export const ChatSidebar = ({
