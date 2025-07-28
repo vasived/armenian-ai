@@ -193,7 +193,7 @@ const Index = () => {
 
         {/* Hero Section */}
         <div className="px-4 sm:px-6 py-6 sm:py-10 text-center border-b border-border/10 bg-gradient-hero">
-          <div className="max-w-4xl mx-auto">
+          <div className="w-full mx-auto">
             <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-2 sm:mb-3 leading-tight">
               Parev! Your Armenian Friend in the Digital World
             </h2>
