@@ -360,6 +360,23 @@ const Index = () => {
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                 <span className="text-sm font-medium text-green-700 dark:text-green-400">Live AI</span>
               </div>
+              {/* Debug button to clear all data */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  localStorage.clear();
+                  setSessions([]);
+                  setActiveSessionId(null);
+                  toast({
+                    title: "Data Cleared",
+                    description: "All chat history has been cleared.",
+                  });
+                }}
+                className="text-xs opacity-50 hover:opacity-100"
+              >
+                Clear All
+              </Button>
               <UserSettings />
               <ThemeToggle />
             </div>
