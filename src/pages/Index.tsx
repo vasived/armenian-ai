@@ -65,8 +65,22 @@ const Index = () => {
   // Load chat sessions on component mount
   useEffect(() => {
     const savedSessions = loadChatSessions();
+
+    // Debug: Check for duplicate message IDs
+    const allMessages = savedSessions.flatMap(s => s.messages);
+    const messageIds = allMessages.map(m => m.id);
+    const duplicateIds = messageIds.filter((id, index) => messageIds.indexOf(id) !== index);
+
+    if (duplicateIds.length > 0) {
+      console.warn('Found duplicate message IDs:', duplicateIds);
+      // Clear localStorage to fix corruption
+      localStorage.removeItem('hagopai_chat_sessions');
+      setSessions([]);
+      return;
+    }
+
     setSessions(savedSessions);
-    
+
     const lastActiveChat = getActiveChat();
     if (lastActiveChat && savedSessions.find(s => s.id === lastActiveChat)) {
       setActiveSessionId(lastActiveChat);
