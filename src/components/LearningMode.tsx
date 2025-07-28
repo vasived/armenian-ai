@@ -569,9 +569,21 @@ export const LearningMode = ({ open, onOpenChange }: LearningModeProps) => {
 
                     {/* Footer */}
                     <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                      <span className="text-xs text-muted-foreground">
-                        {lesson.phrases.length} phrases
-                      </span>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>{lesson.phrases.length} phrases</span>
+                        {attempts > 0 && (
+                          <>
+                            <span>•</span>
+                            <span>{attempts} attempts</span>
+                          </>
+                        )}
+                        {isCompleted && score > 0 && (
+                          <>
+                            <span>•</span>
+                            <span className="text-green-600 font-medium">{score}% score</span>
+                          </>
+                        )}
+                      </div>
                       <ArrowRight className="h-4 w-4 text-muted-foreground" />
                     </div>
                   </div>
