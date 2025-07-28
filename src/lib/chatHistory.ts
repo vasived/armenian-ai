@@ -140,6 +140,41 @@ export const generateChatTitle = (firstMessage: string): string => {
   return fallbackTitle || 'New Chat';
 };
 
+export const generateContextualTitle = (messages: Message[]): string => {
+  if (messages.length === 0) return 'New Chat';
+
+  // Combine all user messages to get conversation context
+  const userMessages = messages.filter(m => m.isUser).map(m => m.content).join(' ');
+  const aiMessages = messages.filter(m => !m.isUser).map(m => m.content).join(' ');
+  const allContent = `${userMessages} ${aiMessages}`.toLowerCase();
+
+  // Advanced topic detection based on conversation content
+  const topicScores = {
+    'Language Learning': ['learn', 'teach', 'practice', 'pronunciation', 'grammar', 'vocabulary', 'armenian', 'english'].reduce((score, word) => score + (allContent.split(word).length - 1), 0),
+    'Family & Relationships': ['family', 'mama', 'haba', 'children', 'marriage', 'relationship', 'love', 'parent'].reduce((score, word) => score + (allContent.split(word).length - 1), 0),
+    'Armenian Culture': ['culture', 'tradition', 'heritage', 'diaspora', 'armenian', 'customs', 'identity'].reduce((score, word) => score + (allContent.split(word).length - 1), 0),
+    'Food & Cooking': ['food', 'recipe', 'cook', 'meal', 'dolma', 'pilaf', 'lavash', 'kitchen', 'delicious'].reduce((score, word) => score + (allContent.split(word).length - 1), 0),
+    'Technology': ['code', 'programming', 'software', 'tech', 'computer', 'development', 'app', 'website'].reduce((score, word) => score + (allContent.split(word).length - 1), 0),
+    'Business & Career': ['work', 'business', 'job', 'career', 'professional', 'office', 'company', 'client'].reduce((score, word) => score + (allContent.split(word).length - 1), 0),
+    'History & Heritage': ['history', 'genocide', 'armenia', 'historical', 'past', 'ancestor', 'heritage'].reduce((score, word) => score + (allContent.split(word).length - 1), 0),
+    'Personal Advice': ['advice', 'help', 'problem', 'issue', 'guidance', 'support', 'suggest', 'recommend'].reduce((score, word) => score + (allContent.split(word).length - 1), 0)
+  };
+
+  // Find the topic with the highest score
+  const dominantTopic = Object.entries(topicScores).reduce((a, b) => topicScores[a[0]] > topicScores[b[0]] ? a : b)[0];
+
+  // Generate summary based on first user message but with contextual topic
+  const firstUserMessage = messages.find(m => m.isUser)?.content || '';
+  const shortSummary = firstUserMessage.length > 25 ? firstUserMessage.slice(0, 25) + '...' : firstUserMessage;
+
+  if (topicScores[dominantTopic] > 2) {
+    return `${dominantTopic}: ${shortSummary}`;
+  }
+
+  // Fallback to original title generation
+  return generateChatTitle(firstUserMessage);
+};
+
 export const createNewChatSession = (): ChatSession => {
   return {
     id: generateSessionId(),
