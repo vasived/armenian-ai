@@ -1,0 +1,228 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Armenian-inspired modern color palette - Light Mode */
+    --background: 0 0% 100%;
+    --foreground: 224 71% 4%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
+
+    /* Armenian red as primary - modern, vibrant */
+    --primary: 355 78% 60%;
+    --primary-foreground: 0 0% 98%;
+
+    /* Soft neutral secondary */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 224 71% 4%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 8% 46%;
+
+    /* Armenian blue accent - modern, bright */
+    --accent: 213 94% 68%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 355 78% 60%;
+
+    /* Armenian orange - vibrant, modern */
+    --armenian-orange: 25 95% 58%;
+    --armenian-orange-foreground: 0 0% 98%;
+
+    /* Modern chat colors */
+    --chat-user-bg: 355 78% 60%;
+    --chat-user-fg: 0 0% 98%;
+    --chat-ai-bg: 220 14% 96%;
+    --chat-ai-fg: 224 71% 4%;
+
+    /* Modern gradients */
+    --gradient-armenian: linear-gradient(135deg, hsl(355 78% 60%) 0%, hsl(213 94% 68%) 50%, hsl(25 95% 58%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(220 14% 98%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(355 78% 60% / 0.1) 0%, hsl(213 94% 68% / 0.05) 100%);
+    
+    /* Glass effect */
+    --glass-bg: hsl(0 0% 100% / 0.8);
+    --glass-border: hsl(220 13% 91% / 0.3);
+
+    --radius: 0.75rem;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Armenian-inspired modern color palette - Dark Mode */
+    --background: 224 71% 4%;
+    --foreground: 210 40% 98%;
+
+    --card: 224 71% 4%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 224 71% 4%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 355 78% 65%;
+    --primary-foreground: 224 71% 4%;
+
+    --secondary: 215 27% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 215 27% 17%;
+    --muted-foreground: 217 10% 64%;
+
+    --accent: 213 94% 68%;
+    --accent-foreground: 224 71% 4%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 215 27% 17%;
+    --input: 215 27% 17%;
+    --ring: 355 78% 65%;
+
+    --armenian-orange: 25 95% 65%;
+    --armenian-orange-foreground: 224 71% 4%;
+
+    /* Modern dark chat colors */
+    --chat-user-bg: 355 78% 65%;
+    --chat-user-fg: 224 71% 4%;
+    --chat-ai-bg: 215 27% 17%;
+    --chat-ai-fg: 210 40% 98%;
+
+    /* Dark mode gradients */
+    --gradient-armenian: linear-gradient(135deg, hsl(355 78% 65%) 0%, hsl(213 94% 68%) 50%, hsl(25 95% 65%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(224 71% 4%) 0%, hsl(215 27% 12%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(355 78% 65% / 0.1) 0%, hsl(213 94% 68% / 0.05) 100%);
+    
+    /* Dark glass effect */
+    --glass-bg: hsl(224 71% 4% / 0.8);
+    --glass-border: hsl(215 27% 17% / 0.3);
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground transition-colors duration-300;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  h1, h2, h3 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+
+  /* Custom animations and effects */
+  .glass-effect {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+  }
+
+  .gradient-text {
+    background: var(--gradient-armenian);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .cultural-glow {
+    box-shadow: 0 0 0 1px hsl(355 78% 60% / 0.1),
+                0 2px 8px hsl(355 78% 60% / 0.1),
+                0 8px 32px hsl(213 94% 68% / 0.1);
+  }
+
+  .warm-card {
+    background: linear-gradient(135deg,
+                hsl(0 0% 100%) 0%,
+                hsl(355 78% 60% / 0.02) 50%,
+                hsl(213 94% 68% / 0.02) 100%);
+    border: 1px solid hsl(355 78% 60% / 0.1);
+  }
+
+  .dark .warm-card {
+    background: linear-gradient(135deg,
+                hsl(224 71% 4%) 0%,
+                hsl(355 78% 65% / 0.05) 50%,
+                hsl(213 94% 68% / 0.05) 100%);
+    border: 1px solid hsl(355 78% 65% / 0.2);
+  }
+
+  .armenian-pattern {
+    background-image:
+      radial-gradient(circle at 1px 1px, hsl(355 78% 60% / 0.15) 1px, transparent 0);
+    background-size: 20px 20px;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.3);
+    border-radius: 4px;
+    transition: background 0.2s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.5);
+  }
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--primary) / 0.3) hsl(var(--background));
+  }
+}
