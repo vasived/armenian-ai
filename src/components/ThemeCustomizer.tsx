@@ -188,6 +188,9 @@ export const ThemeCustomizer = ({ open, onOpenChange }: ThemeCustomizerProps) =>
 
     setSelectedTheme(themeId);
     localStorage.setItem('hagopai_theme', themeId);
+
+    // Track theme usage
+    progressManager.updateCustomizationProgress(themeId);
   };
 
   const applyFontSize = (size: number[]) => {
