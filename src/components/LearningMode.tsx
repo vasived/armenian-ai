@@ -27,7 +27,7 @@ import {
 import { ArmenianIcon } from "@/components/ArmenianIcon";
 import { cn } from "@/lib/utils";
 import { progressManager } from "@/lib/progressManager";
-import { useToast } from "@/hooks/use-toast";
+import { useNotifications } from "@/components/NotificationSystem";
 
 interface Lesson {
   id: string;
@@ -177,7 +177,7 @@ export const LearningMode = ({ open, onOpenChange }: LearningModeProps) => {
   const [lessonStartTime, setLessonStartTime] = useState<Date | null>(null);
   const [phraseScores, setPhraseScores] = useState<number[]>([]);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
-  const { toast } = useToast();
+  const notifications = useNotifications();
 
   // Get progress from progressManager
   const learningStats = progressManager.getLearningStats();
@@ -238,10 +238,10 @@ export const LearningMode = ({ open, onOpenChange }: LearningModeProps) => {
       // Update progress through progressManager
       progressManager.updateLessonProgress(selectedLesson.id, true, timeSpent, avgScore);
 
-      toast({
-        title: "Lesson Completed! 🎉",
-        description: `Score: ${avgScore}% | Time: ${timeSpent} minutes`,
-      });
+      notifications.success(
+        "Lesson Completed! 🎉",
+        `Score: ${avgScore}% | Time: ${timeSpent} minutes`
+      );
 
       setSelectedLesson(null);
     }
@@ -250,10 +250,10 @@ export const LearningMode = ({ open, onOpenChange }: LearningModeProps) => {
   const resetAllProgress = () => {
     progressManager.resetLearningProgress();
     setShowResetConfirm(false);
-    toast({
-      title: "Progress Reset",
-      description: "All learning progress has been reset. Start fresh!",
-    });
+    notifications.info(
+      "Progress Reset",
+      "All learning progress has been reset. Start fresh!"
+    );
   };
 
   const completedLessons = learningStats.completedLessons;
