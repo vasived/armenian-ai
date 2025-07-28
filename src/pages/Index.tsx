@@ -599,7 +599,7 @@ const Index = () => {
       />
 
       {/* Achievement Notifications */}
-      <AchievementNotification />
+      <EnhancedAchievementNotification />
 
       {/* Voice Message Popup */}
       <VoiceMessagePopup
