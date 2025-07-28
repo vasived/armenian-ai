@@ -57,6 +57,10 @@ interface AnalyticsData {
     month: string;
     messages: number;
   }>;
+  growthRate: number;
+  averageWordsPerMessage: number;
+  totalWords: number;
+  engagementScore: number;
 }
 
 interface AnalyticsDashboardProps {
@@ -67,6 +71,9 @@ interface AnalyticsDashboardProps {
 export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardProps) => {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [learningStats, setLearningStats] = useState<any>({});
+  const [usageStats, setUsageStats] = useState<any>({});
 
   useEffect(() => {
     if (open) {
@@ -79,10 +86,15 @@ export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardPro
 
     // Get data from progress manager
     const userProgress = progressManager.getProgress();
-    const learningStats = progressManager.getLearningStats();
+    const learningStatsData = progressManager.getLearningStats();
     const chatStats = progressManager.getChatStats();
-    const usageStats = progressManager.getUsageStats();
-    const achievements = progressManager.getAchievements();
+    const usageStatsData = progressManager.getUsageStats();
+    const achievementsData = progressManager.getAchievements();
+
+    // Set state for these variables
+    setLearningStats(learningStatsData);
+    setUsageStats(usageStatsData);
+    setAchievements(achievementsData);
 
     // Get additional data from localStorage
     const sessions = loadChatSessions();
@@ -120,15 +132,16 @@ export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardPro
       return count > most.count ? { day, count } : most;
     }, { day: 'No activity yet', count: 0 }).day;
 
-    // Analyze cultural topics
+    // Analyze cultural topics with comprehensive keywords
     const culturalKeywords = {
-      'Family': ['family', 'mama', 'haba', 'tatik', 'babik', 'yeghbayr', 'khoyr'],
-      'Food': ['food', 'keretsek', 'hamov', 'dolma', 'pilaf', 'lavash', 'baklava'],
-      'Language': ['armenian', 'parev', 'shnorhakaloutyoun', 'inch bes', 'language'],
-      'Culture': ['culture', 'tradition', 'armenian', 'heritage', 'customs'],
-      'Business': ['work', 'business', 'professional', 'career', 'job'],
-      'Religion': ['church', 'christmas', 'easter', 'prayer', 'religious'],
-      'History': ['history', 'genocide', 'armenia', 'historical', 'heritage']
+      'Family': ['family', 'mama', 'haba', 'tatik', 'babik', 'yeghbayr', 'khoyr', 'entanik', 'azgakan', 'relatives', 'cousin', 'nephew', 'niece'],
+      'Food': ['food', 'keretsek', 'hamov', 'dolma', 'pilaf', 'lavash', 'baklava', 'kebab', 'khorovats', 'manti', 'lahmajoun', 'khash', 'harissa'],
+      'Language': ['armenian', 'parev', 'shnorhakaloutyoun', 'inch bes', 'language', 'hayeren', 'western armenian', 'eastern armenian', 'alphabet', 'grammar'],
+      'Culture': ['culture', 'tradition', 'armenian', 'heritage', 'customs', 'diaspora', 'identity', 'art', 'music', 'dance', 'vardavar', 'artsakh'],
+      'Business': ['work', 'business', 'professional', 'career', 'job', 'entrepreneur', 'startup', 'technology', 'programming', 'engineering'],
+      'Religion': ['church', 'christmas', 'easter', 'prayer', 'religious', 'apostolic', 'catholic', 'protestant', 'surb', 'feast', 'liturgy'],
+      'History': ['history', 'genocide', 'armenia', 'historical', 'heritage', 'ararat', 'yerevan', 'cilicia', 'great armenia', 'masis', 'ani'],
+      'Learning': ['learn', 'study', 'lesson', 'practice', 'education', 'school', 'university', 'knowledge', 'skill', 'fluent']
     };
 
     const topicCounts: Record<string, number> = {};
@@ -156,7 +169,7 @@ export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardPro
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
 
-    // Monthly activity (last 6 months)
+    // Monthly activity (last 6 months) with enhanced calculations
     const monthlyActivity = [];
     const now = new Date();
     for (let i = 5; i >= 0; i--) {
@@ -164,11 +177,28 @@ export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardPro
       const monthStr = month.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
       const monthMessages = allMessages.filter(m => {
         const messageDate = new Date(m.timestamp);
-        return messageDate.getMonth() === month.getMonth() && 
+        return messageDate.getMonth() === month.getMonth() &&
                messageDate.getFullYear() === month.getFullYear();
       }).length;
       monthlyActivity.push({ month: monthStr, messages: monthMessages });
     }
+
+    // Calculate growth rate
+    const thisMonth = monthlyActivity[monthlyActivity.length - 1]?.messages || 0;
+    const lastMonth = monthlyActivity[monthlyActivity.length - 2]?.messages || 0;
+    const growthRate = lastMonth > 0 ? ((thisMonth - lastMonth) / lastMonth) * 100 : 0;
+
+    // Calculate word statistics
+    const totalWords = allMessages.reduce((sum, msg) => sum + msg.content.split(' ').length, 0);
+    const averageWordsPerMessage = totalMessages > 0 ? Math.round(totalWords / totalMessages) : 0;
+
+    // Calculate engagement score (0-100 based on various factors)
+    const baseEngagement = Math.min(activeDays * 5, 50); // Up to 50 points for active days
+    const chatBonus = Math.min(totalChats * 2, 20); // Up to 20 points for conversations
+    const learningBonus = Math.min(learningStatsData.completedLessons * 3, 15); // Up to 15 points for learning
+    const favoriteBonus = Math.min(favoritesCount * 2, 10); // Up to 10 points for favorites
+    const streakBonus = Math.min(learningStatsData.currentStreak, 5); // Up to 5 points for streak
+    const engagementScore = Math.min(baseEngagement + chatBonus + learningBonus + favoriteBonus + streakBonus, 100);
 
     const analyticsData: AnalyticsData = {
       totalChats,
@@ -177,17 +207,21 @@ export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardPro
       aiMessages,
       favoritesCount,
       averageMessagesPerChat,
-      activeDays: usageStats.activeDays,
+      activeDays: usageStatsData.activeDays,
       longestChat,
       mostActiveDay,
       responseTime: 1.2,
       culturalTopics,
       learningProgress: {
-        completedLessons: learningStats.completedLessons,
-        totalTime: learningStats.totalTimeSpent,
-        streak: learningStats.currentStreak
+        completedLessons: learningStatsData.completedLessons,
+        totalTime: learningStatsData.totalTimeSpent,
+        streak: learningStatsData.currentStreak
       },
-      monthlyActivity
+      monthlyActivity,
+      growthRate,
+      averageWordsPerMessage,
+      totalWords,
+      engagementScore
     };
 
     setAnalytics(analyticsData);
@@ -276,6 +310,59 @@ export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardPro
                   <div>
                     <p className="text-2xl font-bold">{analytics.activeDays}</p>
                     <p className="text-sm text-muted-foreground">Active Days</p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            {/* Enhanced Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-indigo-500 rounded-lg">
+                    <Brain className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{analytics.engagementScore}</p>
+                    <p className="text-sm text-muted-foreground">Engagement Score</p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-teal-500 rounded-lg">
+                    <TrendingUp className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">
+                      {analytics.growthRate > 0 ? '+' : ''}{analytics.growthRate.toFixed(1)}%
+                    </p>
+                    <p className="text-sm text-muted-foreground">Monthly Growth</p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-orange-500 rounded-lg">
+                    <MessageSquare className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{analytics.averageWordsPerMessage}</p>
+                    <p className="text-sm text-muted-foreground">Avg Words/Message</p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-red-500 rounded-lg">
+                    <Activity className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{analytics.totalWords.toLocaleString()}</p>
+                    <p className="text-sm text-muted-foreground">Total Words</p>
                   </div>
                 </div>
               </Card>

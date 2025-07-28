@@ -55,9 +55,11 @@ const themes: Theme[] = [
     },
     cssVars: {
       '--primary': '355 78% 60%',
+      '--primary-foreground': '0 0% 98%',
       '--secondary': '220 14% 96%',
+      '--secondary-foreground': '224 71% 4%',
       '--accent': '213 94% 68%',
-      '--background': '0 0% 100%'
+      '--accent-foreground': '0 0% 98%'
     },
     icon: <ArmenianIcon className="h-4 w-4" />
   },
@@ -73,9 +75,11 @@ const themes: Theme[] = [
     },
     cssVars: {
       '--primary': '43 96% 56%',
+      '--primary-foreground': '0 0% 0%',
       '--secondary': '48 96% 89%',
+      '--secondary-foreground': '43 96% 25%',
       '--accent': '0 84% 60%',
-      '--background': '48 100% 96%'
+      '--accent-foreground': '0 0% 98%'
     },
     icon: <Mountain className="h-4 w-4" />
   },
@@ -91,9 +95,11 @@ const themes: Theme[] = [
     },
     cssVars: {
       '--primary': '199 89% 48%',
+      '--primary-foreground': '0 0% 98%',
       '--secondary': '191 100% 93%',
+      '--secondary-foreground': '199 89% 15%',
       '--accent': '258 90% 66%',
-      '--background': '210 40% 98%'
+      '--accent-foreground': '0 0% 98%'
     },
     icon: <Waves className="h-4 w-4" />
   },
@@ -109,9 +115,11 @@ const themes: Theme[] = [
     },
     cssVars: {
       '--primary': '262 83% 58%',
+      '--primary-foreground': '0 0% 98%',
       '--secondary': '270 100% 95%',
+      '--secondary-foreground': '262 83% 20%',
       '--accent': '43 96% 56%',
-      '--background': '0 0% 98%'
+      '--accent-foreground': '0 0% 0%'
     },
     icon: <Star className="h-4 w-4" />
   },
@@ -127,9 +135,11 @@ const themes: Theme[] = [
     },
     cssVars: {
       '--primary': '160 84% 39%',
+      '--primary-foreground': '0 0% 98%',
       '--secondary': '151 81% 86%',
+      '--secondary-foreground': '160 84% 15%',
       '--accent': '0 84% 50%',
-      '--background': '120 60% 97%'
+      '--accent-foreground': '0 0% 98%'
     },
     icon: <Heart className="h-4 w-4" />
   },
@@ -145,9 +155,11 @@ const themes: Theme[] = [
     },
     cssVars: {
       '--primary': '0 84% 60%',
+      '--primary-foreground': '0 0% 98%',
       '--secondary': '0 93% 94%',
+      '--secondary-foreground': '0 84% 20%',
       '--accent': '43 96% 56%',
-      '--background': '39 100% 97%'
+      '--accent-foreground': '0 0% 0%'
     },
     icon: <Flame className="h-4 w-4" />
   }
@@ -161,7 +173,7 @@ export const ThemeCustomizer = ({ open, onOpenChange }: ThemeCustomizerProps) =>
   const [highContrast, setHighContrast] = useState(false);
 
   useEffect(() => {
-    // Load saved settings
+    // Load saved settings and apply them immediately
     const savedTheme = localStorage.getItem('hagopai_theme') || 'default';
     const savedFontSize = parseInt(localStorage.getItem('hagopai_font_size') || '100');
     const savedBorderRadius = parseInt(localStorage.getItem('hagopai_border_radius') || '75');
@@ -173,6 +185,15 @@ export const ThemeCustomizer = ({ open, onOpenChange }: ThemeCustomizerProps) =>
     setBorderRadius(savedBorderRadius);
     setAnimations(savedAnimations);
     setHighContrast(savedHighContrast);
+
+    // Apply theme immediately if not default
+    if (savedTheme !== 'default') {
+      applyTheme(savedTheme);
+    }
+    applyFontSize([savedFontSize]);
+    applyBorderRadius([savedBorderRadius]);
+    toggleAnimations(savedAnimations);
+    toggleHighContrast(savedHighContrast);
   }, [open]);
 
   const applyTheme = (themeId: string) => {
@@ -180,11 +201,14 @@ export const ThemeCustomizer = ({ open, onOpenChange }: ThemeCustomizerProps) =>
     if (!theme) return;
 
     const root = document.documentElement;
-    
-    // Apply CSS variables
+
+    // Only apply theme variables, preserving dark mode variables
     Object.entries(theme.cssVars).forEach(([property, value]) => {
       root.style.setProperty(property, value);
     });
+
+    // Apply data attribute for theme-specific styling
+    root.setAttribute('data-theme', themeId);
 
     setSelectedTheme(themeId);
     localStorage.setItem('hagopai_theme', themeId);
@@ -218,10 +242,21 @@ export const ThemeCustomizer = ({ open, onOpenChange }: ThemeCustomizerProps) =>
   };
 
   const toggleHighContrast = (enabled: boolean) => {
+    const root = document.documentElement;
     if (enabled) {
-      document.documentElement.classList.add('high-contrast');
+      root.classList.add('high-contrast');
+      // Apply high contrast color overrides
+      root.style.setProperty('--foreground', '0 0% 0%');
+      root.style.setProperty('--background', '0 0% 100%');
+      root.style.setProperty('--border', '0 0% 20%');
+      root.style.setProperty('--muted-foreground', '0 0% 30%');
     } else {
-      document.documentElement.classList.remove('high-contrast');
+      root.classList.remove('high-contrast');
+      // Remove high contrast overrides
+      root.style.removeProperty('--foreground');
+      root.style.removeProperty('--background');
+      root.style.removeProperty('--border');
+      root.style.removeProperty('--muted-foreground');
     }
     setHighContrast(enabled);
     localStorage.setItem('hagopai_high_contrast', enabled.toString());

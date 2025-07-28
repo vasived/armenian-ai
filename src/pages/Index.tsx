@@ -13,6 +13,7 @@ import { LearningMode } from "@/components/LearningMode";
 import { ThemeCustomizer } from "@/components/ThemeCustomizer";
 import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
 import { AchievementNotification } from "@/components/AchievementNotification";
+import { VoiceMessagePopup } from "@/components/VoiceMessagePopup";
 import { progressManager } from "@/lib/progressManager";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -40,14 +41,15 @@ import {
   Star
 } from "lucide-react";
 import { ArmenianIcon } from "@/components/ArmenianIcon";
-import { 
-  ChatSession, 
+import {
+  ChatSession,
   Message,
   saveChatSessions,
   loadChatSessions,
   getActiveChat,
   setActiveChat,
   generateChatTitle,
+  generateContextualTitle,
   createNewChatSession,
   updateChatSession,
   deleteChatSession
@@ -66,6 +68,7 @@ const Index = () => {
   const [learningOpen, setLearningOpen] = useState(false);
   const [themesOpen, setThemesOpen] = useState(false);
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
+  const [voicePopupOpen, setVoicePopupOpen] = useState(false);
 
   const activeSession = sessions.find(s => s.id === activeSessionId) || null;
   const messages = activeSession?.messages || [];
@@ -216,12 +219,22 @@ const Index = () => {
       timestamp: new Date()
     };
 
-    // Update session with AI response
+    // Update session with AI response and potentially update title
     setSessions(prev => {
       const currentSession = prev.find(s => s.id === currentSessionId);
       const updatedMessages = [...(currentSession?.messages || []), aiResponse];
+
+      // Update title intelligently after 2-3 exchanges to get better context
+      const shouldUpdateTitle = updatedMessages.length >= 4 &&
+        (currentSession?.title === 'New Chat' || currentSession?.title?.startsWith('Chat about'));
+
+      const newTitle = shouldUpdateTitle
+        ? generateContextualTitle(updatedMessages)
+        : currentSession?.title;
+
       return updateChatSession(prev, currentSessionId!, {
-        messages: updatedMessages
+        messages: updatedMessages,
+        ...(shouldUpdateTitle && { title: newTitle })
       });
     });
 
@@ -231,10 +244,8 @@ const Index = () => {
   const handleQuickAction = (action: string) => {
     switch (action) {
       case 'voice':
-        toast({
-          title: "Voice Messages",
-          description: "Voice recording feature coming soon!",
-        });
+        progressManager.trackFeatureUsage('voice_messages');
+        setVoicePopupOpen(true);
         break;
       case 'favorites':
         // Open favorites dialog (handled by the FavoritesDialog trigger)
@@ -596,6 +607,12 @@ const Index = () => {
 
       {/* Achievement Notifications */}
       <AchievementNotification />
+
+      {/* Voice Message Popup */}
+      <VoiceMessagePopup
+        show={voicePopupOpen}
+        onClose={() => setVoicePopupOpen(false)}
+      />
     </div>
   );
 };

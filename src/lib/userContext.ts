@@ -30,9 +30,9 @@ export const getUserPreferences = (): UserPreferences => {
   
   // Default preferences for Armenian users
   return {
-    preferredLanguage: 'mixed',
+    preferredLanguage: 'armenian',
     responseStyle: 'family-like',
-    armenianUsage: 'occasional',
+    armenianUsage: 'frequent',
     armenianScript: 'transliteration',
     culturalDepth: 'moderate',
     armenianLevel: 'native'
@@ -116,17 +116,17 @@ export const generateUserContextPrompt = (preferences: UserPreferences): string 
       contextParts.push('Use Armenian words and phrases frequently throughout responses.');
       break;
     case 'armenian-only':
-      contextParts.push('Respond primarily or exclusively in Western Armenian, using English only when necessary.');
+      contextParts.push('CRITICAL: Respond primarily or exclusively in Western Armenian. Use Armenian words, phrases, and sentence structures as the primary language of communication. Only use English for technical terms or when absolutely necessary.');
       break;
   }
 
-  // Armenian script preference
+  // Armenian script preference with strict enforcement
   switch (preferences.armenianScript) {
     case 'transliteration':
-      contextParts.push('When using Armenian words, use English letters (transliteration) like "parev", "shnorhakaloutyoun".');
+      contextParts.push('MANDATORY: When using Armenian words, ALWAYS use English letters (transliteration) like "parev", "shnorhakaloutyoun". NEVER use Armenian script letters.');
       break;
     case 'armenian-letters':
-      contextParts.push('When using Armenian words, use proper Armenian script letters like "Պարեւ", "շնոր��ակալություն".');
+      contextParts.push('MANDATORY: When using Armenian words, ALWAYS use proper Armenian script letters like "Պարեւ", "շնոր��ակալություն". NEVER use English letters for Armenian words.');
       break;
   }
 
@@ -149,7 +149,7 @@ export const generateUserContextPrompt = (preferences: UserPreferences): string 
   // Language preference with strong enforcement
   switch (preferences.preferredLanguage) {
     case 'armenian':
-      contextParts.push('RESPOND PRIMARILY IN WESTERN ARMENIAN. Use Armenian as the main language of response.');
+      contextParts.push('RESPOND PRIMARILY IN WESTERN ARMENIAN. Use Armenian as the main language of response. Structure sentences in Armenian and only supplement with English when necessary.');
       break;
     case 'english':
       contextParts.push('RESPOND PRIMARILY IN ENGLISH. Use English as the main language of response, minimizing Armenian unless specifically requested.');

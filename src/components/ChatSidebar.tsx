@@ -1,17 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Plus, 
-  MessageSquare, 
-  Calendar, 
-  Trash2, 
-  Edit3, 
-  Check, 
-  X, 
+import {
+  Plus,
+  MessageSquare,
+  Calendar,
+  Trash2,
+  Edit3,
+  Check,
+  X,
   Menu,
   Bot,
   Clock,
@@ -44,10 +44,41 @@ export const ChatSidebar = ({
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [newChatId, setNewChatId] = useState<string | null>(null);
+  const [deletingChatId, setDeletingChatId] = useState<string | null>(null);
+  const previousSessionsRef = useRef<ChatSession[]>(sessions);
 
-  const sortedSessions = [...sessions].sort((a, b) => 
+  // Detect new chats for animation
+  useEffect(() => {
+    const prevIds = new Set(previousSessionsRef.current.map(s => s.id));
+    const newChat = sessions.find(s => !prevIds.has(s.id));
+
+    if (newChat) {
+      setNewChatId(newChat.id);
+      setTimeout(() => setNewChatId(null), 500); // Remove animation class after animation
+    }
+
+    previousSessionsRef.current = sessions;
+  }, [sessions]);
+
+  const sortedSessions = [...sessions].sort((a, b) =>
     new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
   );
+
+  // Enhanced delete handler with animation
+  const handleDeleteWithAnimation = (sessionId: string) => {
+    setDeletingChatId(sessionId);
+    setTimeout(() => {
+      onDeleteChat(sessionId);
+      setDeletingChatId(null);
+    }, 300); // Wait for animation to complete
+  };
+
+  // Enhanced new chat handler with animation
+  const handleNewChatWithAnimation = () => {
+    onNewChat();
+    // The animation will be triggered by useEffect when sessions changes
+  };
 
   const filteredSessions = sortedSessions.filter(session =>
     session.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -90,7 +121,7 @@ export const ChatSidebar = ({
       {/* Header */}
       <div className="p-4 border-b border-border/20">
         <Button
-          onClick={onNewChat}
+          onClick={handleNewChatWithAnimation}
           className="w-full gap-2 bg-gradient-armenian hover:bg-gradient-armenian/90 text-white shadow-lg"
           size="lg"
         >
@@ -154,8 +185,8 @@ export const ChatSidebar = ({
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="p-4 border-b border-border/20">
-        <Button 
-          onClick={onNewChat}
+        <Button
+          onClick={handleNewChatWithAnimation}
           className="w-full gap-2 bg-gradient-armenian hover:bg-gradient-armenian/90 text-white shadow-lg"
           size="lg"
         >
@@ -208,10 +239,12 @@ export const ChatSidebar = ({
                         editingTitle={editingTitle}
                         onSelect={() => onSelectChat(session.id)}
                         onEdit={() => startEditing(session)}
-                        onDelete={() => onDeleteChat(session.id)}
+                        onDelete={() => handleDeleteWithAnimation(session.id)}
                         onSaveEdit={saveEditing}
                         onCancelEdit={cancelEditing}
                         onTitleChange={setEditingTitle}
+                        isNew={newChatId === session.id}
+                        isDeleting={deletingChatId === session.id}
                       />
                     ))}
                 </div>
@@ -235,10 +268,12 @@ export const ChatSidebar = ({
                         editingTitle={editingTitle}
                         onSelect={() => onSelectChat(session.id)}
                         onEdit={() => startEditing(session)}
-                        onDelete={() => onDeleteChat(session.id)}
+                        onDelete={() => handleDeleteWithAnimation(session.id)}
                         onSaveEdit={saveEditing}
                         onCancelEdit={cancelEditing}
                         onTitleChange={setEditingTitle}
+                        isNew={newChatId === session.id}
+                        isDeleting={deletingChatId === session.id}
                       />
                     ))}
                 </div>
@@ -262,10 +297,12 @@ export const ChatSidebar = ({
                         editingTitle={editingTitle}
                         onSelect={() => onSelectChat(session.id)}
                         onEdit={() => startEditing(session)}
-                        onDelete={() => onDeleteChat(session.id)}
+                        onDelete={() => handleDeleteWithAnimation(session.id)}
                         onSaveEdit={saveEditing}
                         onCancelEdit={cancelEditing}
                         onTitleChange={setEditingTitle}
+                        isNew={newChatId === session.id}
+                        isDeleting={deletingChatId === session.id}
                       />
                     ))}
                 </div>
@@ -322,6 +359,8 @@ interface ChatSessionItemProps {
   onSaveEdit: () => void;
   onCancelEdit: () => void;
   onTitleChange: (title: string) => void;
+  isNew?: boolean;
+  isDeleting?: boolean;
 }
 
 const ChatSessionItem = ({
@@ -334,16 +373,20 @@ const ChatSessionItem = ({
   onDelete,
   onSaveEdit,
   onCancelEdit,
-  onTitleChange
+  onTitleChange,
+  isNew = false,
+  isDeleting = false
 }: ChatSessionItemProps) => {
   const messageCount = session.messages.length;
   const lastMessage = session.messages[session.messages.length - 1];
 
   return (
     <div className={cn(
-      "group relative rounded-lg p-3 cursor-pointer transition-all duration-200",
+      "group relative rounded-lg p-3 cursor-pointer transition-all duration-300",
       "hover:bg-accent/50 hover:shadow-sm",
-      isActive && "bg-accent shadow-sm ring-1 ring-primary/20"
+      isActive && "bg-accent shadow-sm ring-1 ring-primary/20",
+      isNew && "animate-in slide-in-from-top-2 fade-in duration-500",
+      isDeleting && "animate-out slide-out-to-right-2 fade-out duration-300"
     )}>
       {isEditing ? (
         <div className="space-y-2">
