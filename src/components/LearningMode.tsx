@@ -256,7 +256,7 @@ export const LearningMode = ({ open, onOpenChange }: LearningModeProps) => {
     });
   };
 
-  const completedLessons = Object.values(lessonProgress).filter(Boolean).length;
+  const completedLessons = learningStats.completedLessons;
   const totalLessons = lessons.length;
   const overallProgress = (completedLessons / totalLessons) * 100;
 
