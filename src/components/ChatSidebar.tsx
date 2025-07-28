@@ -85,6 +85,71 @@ export const ChatSidebar = ({
     return date.toLocaleDateString();
   };
 
+  const MobileSidebarContent = () => (
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="p-4 border-b border-border/20">
+        <Button
+          onClick={onNewChat}
+          className="w-full gap-2 bg-gradient-armenian hover:bg-gradient-armenian/90 text-white shadow-lg"
+          size="lg"
+        >
+          <Plus className="h-4 w-4" />
+          New Chat
+        </Button>
+
+        {/* Search */}
+        <div className="mt-3 relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search chats..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 h-9"
+          />
+        </div>
+      </div>
+
+      {/* Chat History */}
+      <ScrollArea className="flex-1 px-2">
+        <div className="space-y-1 p-2">
+          {filteredSessions.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <MessageSquare className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <p className="text-sm">
+                {searchQuery ? "No chats found" : "No chat history yet"}
+              </p>
+              <p className="text-xs mt-1 opacity-70">
+                {searchQuery ? "Try a different search term" : "Start a conversation to see it here"}
+              </p>
+            </div>
+          ) : (
+            sessions.map(session => (
+              <div
+                key={`mobile-${session.id}`}
+                className="p-3 rounded-lg cursor-pointer hover:bg-accent/50 transition-all"
+                onClick={() => onSelectChat(session.id)}
+              >
+                <h4 className="text-sm font-medium truncate">{session.title}</h4>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {session.messages.length} messages
+                </p>
+              </div>
+            ))
+          )}
+        </div>
+      </ScrollArea>
+
+      {/* Footer */}
+      <div className="p-4 border-t border-border/20">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Bot className="h-4 w-4" />
+          <span>{sessions.length} chat{sessions.length !== 1 ? 's' : ''}</span>
+        </div>
+      </div>
+    </div>
+  );
+
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       {/* Header */}
