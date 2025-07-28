@@ -1,17 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Plus, 
-  MessageSquare, 
-  Calendar, 
-  Trash2, 
-  Edit3, 
-  Check, 
-  X, 
+import {
+  Plus,
+  MessageSquare,
+  Calendar,
+  Trash2,
+  Edit3,
+  Check,
+  X,
   Menu,
   Bot,
   Clock,
