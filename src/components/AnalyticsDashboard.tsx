@@ -188,6 +188,18 @@ export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardPro
     const lastMonth = monthlyActivity[monthlyActivity.length - 2]?.messages || 0;
     const growthRate = lastMonth > 0 ? ((thisMonth - lastMonth) / lastMonth) * 100 : 0;
 
+    // Calculate word statistics
+    const totalWords = allMessages.reduce((sum, msg) => sum + msg.content.split(' ').length, 0);
+    const averageWordsPerMessage = totalMessages > 0 ? Math.round(totalWords / totalMessages) : 0;
+
+    // Calculate engagement score (0-100 based on various factors)
+    const baseEngagement = Math.min(activeDays * 5, 50); // Up to 50 points for active days
+    const chatBonus = Math.min(totalChats * 2, 20); // Up to 20 points for conversations
+    const learningBonus = Math.min(learningStatsData.completedLessons * 3, 15); // Up to 15 points for learning
+    const favoriteBonus = Math.min(favoritesCount * 2, 10); // Up to 10 points for favorites
+    const streakBonus = Math.min(learningStatsData.currentStreak, 5); // Up to 5 points for streak
+    const engagementScore = Math.min(baseEngagement + chatBonus + learningBonus + favoriteBonus + streakBonus, 100);
+
     const analyticsData: AnalyticsData = {
       totalChats,
       totalMessages,
