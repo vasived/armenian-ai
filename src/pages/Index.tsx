@@ -244,10 +244,8 @@ const Index = () => {
   const handleQuickAction = (action: string) => {
     switch (action) {
       case 'voice':
-        toast({
-          title: "Voice Messages",
-          description: "Voice recording feature coming soon!",
-        });
+        progressManager.trackFeatureUsage('voice_messages');
+        setVoicePopupOpen(true);
         break;
       case 'favorites':
         // Open favorites dialog (handled by the FavoritesDialog trigger)
