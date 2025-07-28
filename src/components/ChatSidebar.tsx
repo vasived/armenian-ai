@@ -38,7 +38,8 @@ export const ChatSidebar = ({
   onSelectChat,
   onDeleteChat,
   onRenameChat,
-  className
+  className,
+  keyPrefix = 'desktop'
 }: ChatSidebarProps) => {
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
