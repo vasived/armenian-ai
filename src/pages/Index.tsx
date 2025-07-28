@@ -29,7 +29,8 @@ import {
   Menu,
   Plus,
   Search,
-  MessageSquare
+  MessageSquare,
+  Star
 } from "lucide-react";
 import { ArmenianIcon } from "@/components/ArmenianIcon";
 import { 
