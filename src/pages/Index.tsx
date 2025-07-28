@@ -133,7 +133,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5 transition-colors duration-300">
-      <div className="container mx-auto max-w-6xl h-screen flex flex-col relative">
+      <div className="w-full h-screen flex flex-col relative">
         {/* Modern Header */}
         <header className="glass-effect border-b border-border/20 backdrop-blur-xl cultural-glow">
           <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
@@ -193,11 +193,11 @@ const Index = () => {
 
         {/* Hero Section */}
         <div className="px-4 sm:px-6 py-6 sm:py-10 text-center border-b border-border/10 bg-gradient-hero">
-          <div className="max-w-4xl mx-auto">
+          <div className="w-full mx-auto">
             <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-2 sm:mb-3 leading-tight">
               Parev! Your Armenian Friend in the Digital World
             </h2>
-            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-3xl mx-auto">
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed w-full mx-auto">
               Whether you need help with Armenian traditions, family questions, work advice, or just want to chat about life -
               HagopAI is here for you. Talk to me in English or Western Armenian
               (like <span className="font-medium text-primary">"parev"</span> or <span className="font-medium text-primary">"shnorhakaloutyoun"</span>) and let's have a real conversation!
@@ -224,7 +224,7 @@ const Index = () => {
             {/* Empty state with tips */}
             {messages.length === 0 && !isLoading && (
               <div className="mt-6 sm:mt-10 text-center text-muted-foreground">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-5xl mx-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full mx-auto">
                   <div className="p-4 sm:p-5 rounded-xl warm-card hover:shadow-lg transition-all duration-300 group hover:scale-105">
                     <Globe className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3 text-primary group-hover:scale-110 transition-transform" />
                     <div className="text-sm font-semibold mb-1">Armenian Culture</div>
