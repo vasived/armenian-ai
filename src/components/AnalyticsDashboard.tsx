@@ -170,13 +170,6 @@ export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardPro
       monthlyActivity.push({ month: monthStr, messages: monthMessages });
     }
 
-    // Learning progress (mock data for now)
-    const learningProgress = {
-      completedLessons: parseInt(localStorage.getItem('armenian_lesson_progress') || '0'),
-      totalTime: Math.floor(Math.random() * 120) + 30, // Mock time
-      streak: Math.floor(Math.random() * 7) + 1 // Mock streak
-    };
-
     const analyticsData: AnalyticsData = {
       totalChats,
       totalMessages,
@@ -184,12 +177,16 @@ export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardPro
       aiMessages,
       favoritesCount,
       averageMessagesPerChat,
-      activeDays,
+      activeDays: usageStats.activeDays,
       longestChat,
       mostActiveDay,
-      responseTime: 1.2, // Mock response time
+      responseTime: 1.2,
       culturalTopics,
-      learningProgress,
+      learningProgress: {
+        completedLessons: learningStats.completedLessons,
+        totalTime: learningStats.totalTimeSpent,
+        streak: learningStats.currentStreak
+      },
       monthlyActivity
     };
 
