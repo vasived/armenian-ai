@@ -22,7 +22,10 @@ import {
   Trash2,
   TrendingUp,
   Target,
-  Zap
+  Zap,
+  MessageCircle,
+  Sparkles,
+  User
 } from "lucide-react";
 import { ArmenianIcon } from "@/components/ArmenianIcon";
 import { cn } from "@/lib/utils";
