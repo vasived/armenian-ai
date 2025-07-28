@@ -224,7 +224,7 @@ const Index = () => {
             {/* Empty state with tips */}
             {messages.length === 0 && !isLoading && (
               <div className="mt-6 sm:mt-10 text-center text-muted-foreground">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-5xl mx-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full mx-auto">
                   <div className="p-4 sm:p-5 rounded-xl warm-card hover:shadow-lg transition-all duration-300 group hover:scale-105">
                     <Globe className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3 text-primary group-hover:scale-110 transition-transform" />
                     <div className="text-sm font-semibold mb-1">Armenian Culture</div>
