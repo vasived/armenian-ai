@@ -116,7 +116,7 @@ export const generateUserContextPrompt = (preferences: UserPreferences): string 
       contextParts.push('Use Armenian words and phrases frequently throughout responses.');
       break;
     case 'armenian-only':
-      contextParts.push('Respond primarily or exclusively in Western Armenian, using English only when necessary.');
+      contextParts.push('CRITICAL: Respond primarily or exclusively in Western Armenian. Use Armenian words, phrases, and sentence structures as the primary language of communication. Only use English for technical terms or when absolutely necessary.');
       break;
   }
 
