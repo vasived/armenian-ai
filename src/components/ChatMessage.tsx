@@ -14,8 +14,15 @@ interface ChatMessageProps {
   sessionTitle?: string;
 }
 
-export const ChatMessage = ({ message, isUser, timestamp }: ChatMessageProps) => {
+export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, sessionTitle }: ChatMessageProps) => {
   const [copied, setCopied] = useState(false);
+  const [favorited, setFavorited] = useState(false);
+
+  useEffect(() => {
+    if (messageId) {
+      setFavorited(isFavorited(messageId));
+    }
+  }, [messageId]);
 
   const handleCopy = async () => {
     try {
@@ -24,6 +31,18 @@ export const ChatMessage = ({ message, isUser, timestamp }: ChatMessageProps) =>
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       console.error('Failed to copy message:', error);
+    }
+  };
+
+  const handleToggleFavorite = () => {
+    if (!messageId || !sessionId || !sessionTitle || !timestamp) return;
+
+    if (favorited) {
+      removeFromFavorites(messageId);
+      setFavorited(false);
+    } else {
+      addToFavorites(messageId, message, isUser, timestamp, sessionId, sessionTitle);
+      setFavorited(true);
     }
   };
 
