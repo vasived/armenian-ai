@@ -443,6 +443,12 @@ const Index = () => {
               >
                 Clear All
               </Button>
+              <FavoritesDialog>
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <Star className="h-4 w-4" />
+                  <span className="hidden sm:inline">Favorites</span>
+                </Button>
+              </FavoritesDialog>
               <UserSettings />
               <ThemeToggle />
             </div>
