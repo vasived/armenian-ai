@@ -377,14 +377,57 @@ export const LearningMode = ({ open, onOpenChange }: LearningModeProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5" />
-            Armenian Learning Mode
-            <Badge variant="secondary" className="ml-2">
-              {completedLessons}/{totalLessons} completed
-            </Badge>
+          <DialogTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5" />
+              Armenian Learning Mode
+              <Badge variant="secondary" className="ml-2">
+                {completedLessons}/{totalLessons} completed
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowResetConfirm(true)}
+                className="text-destructive hover:text-destructive gap-2"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Reset Progress
+              </Button>
+            </div>
           </DialogTitle>
         </DialogHeader>
+
+        {/* Reset Confirmation */}
+        {showResetConfirm && (
+          <Card className="p-4 bg-destructive/10 border-destructive/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-semibold text-destructive">Reset All Learning Progress?</h4>
+                <p className="text-sm text-muted-foreground">This will delete all completed lessons and statistics.</p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowResetConfirm(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={resetAllProgress}
+                  className="gap-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Reset
+                </Button>
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Overall Progress */}
         <Card className="p-4">
