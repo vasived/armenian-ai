@@ -185,15 +185,15 @@ export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardPro
       aiMessages,
       favoritesCount,
       averageMessagesPerChat,
-      activeDays: usageStats.activeDays,
+      activeDays: usageStatsData.activeDays,
       longestChat,
       mostActiveDay,
       responseTime: 1.2,
       culturalTopics,
       learningProgress: {
-        completedLessons: learningStats.completedLessons,
-        totalTime: learningStats.totalTimeSpent,
-        streak: learningStats.currentStreak
+        completedLessons: learningStatsData.completedLessons,
+        totalTime: learningStatsData.totalTimeSpent,
+        streak: learningStatsData.currentStreak
       },
       monthlyActivity
     };
