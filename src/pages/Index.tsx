@@ -58,6 +58,13 @@ const Index = () => {
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Dialog states
+  const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [learningOpen, setLearningOpen] = useState(false);
+  const [themesOpen, setThemesOpen] = useState(false);
+  const [analyticsOpen, setAnalyticsOpen] = useState(false);
+
   const activeSession = sessions.find(s => s.id === activeSessionId) || null;
   const messages = activeSession?.messages || [];
 
