@@ -22,12 +22,15 @@ import {
   Trash2,
   TrendingUp,
   Target,
-  Zap
+  Zap,
+  MessageCircle,
+  Sparkles,
+  User
 } from "lucide-react";
 import { ArmenianIcon } from "@/components/ArmenianIcon";
 import { cn } from "@/lib/utils";
 import { progressManager } from "@/lib/progressManager";
-import { useToast } from "@/hooks/use-toast";
+import { useNotifications } from "@/components/NotificationSystem";
 
 interface Lesson {
   id: string;
@@ -177,7 +180,7 @@ export const LearningMode = ({ open, onOpenChange }: LearningModeProps) => {
   const [lessonStartTime, setLessonStartTime] = useState<Date | null>(null);
   const [phraseScores, setPhraseScores] = useState<number[]>([]);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
-  const { toast } = useToast();
+  const notifications = useNotifications();
 
   // Get progress from progressManager
   const learningStats = progressManager.getLearningStats();
@@ -238,10 +241,10 @@ export const LearningMode = ({ open, onOpenChange }: LearningModeProps) => {
       // Update progress through progressManager
       progressManager.updateLessonProgress(selectedLesson.id, true, timeSpent, avgScore);
 
-      toast({
-        title: "Lesson Completed! 🎉",
-        description: `Score: ${avgScore}% | Time: ${timeSpent} minutes`,
-      });
+      notifications.success(
+        "Lesson Completed! 🎉",
+        `Score: ${avgScore}% | Time: ${timeSpent} minutes`
+      );
 
       setSelectedLesson(null);
     }
@@ -250,10 +253,10 @@ export const LearningMode = ({ open, onOpenChange }: LearningModeProps) => {
   const resetAllProgress = () => {
     progressManager.resetLearningProgress();
     setShowResetConfirm(false);
-    toast({
-      title: "Progress Reset",
-      description: "All learning progress has been reset. Start fresh!",
-    });
+    notifications.info(
+      "Progress Reset",
+      "All learning progress has been reset. Start fresh!"
+    );
   };
 
   const completedLessons = learningStats.completedLessons;
@@ -508,83 +511,122 @@ export const LearningMode = ({ open, onOpenChange }: LearningModeProps) => {
                 <Card
                   key={lesson.id}
                   className={cn(
-                    "p-6 cursor-pointer transition-all duration-200",
-                    "hover:shadow-lg hover:scale-105",
-                    isCompleted && "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800"
+                    "relative p-6 cursor-pointer transition-all duration-300 group overflow-hidden",
+                    "hover:shadow-xl hover:scale-[1.02] hover:-translate-y-1",
+                    "border-2 hover:border-primary/50",
+                    isCompleted
+                      ? "bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border-green-300 dark:border-green-700"
+                      : "hover:bg-gradient-to-br hover:from-primary/5 hover:to-accent/10",
+                    !isCompleted && "border-dashed border-muted-foreground/20 hover:border-solid"
                   )}
                   onClick={() => startLesson(lesson)}
                 >
-                  <div className="space-y-4">
+                  {/* Animated background gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 -skew-x-12 transform translate-x-full group-hover:-translate-x-full" />
+
+                  <div className="relative space-y-4">
                     {/* Header */}
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
                         <div className={cn(
-                          "p-2 rounded-lg text-white",
+                          "p-3 rounded-xl text-white shadow-lg transition-all duration-300",
+                          "group-hover:scale-110 group-hover:shadow-xl",
                           getCategoryColor(lesson.category)
                         )}>
                           {getCategoryIcon(lesson.category)}
                         </div>
                         <div>
-                          <h3 className="font-semibold">{lesson.title}</h3>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge 
-                              variant="outline" 
+                          <h3 className="font-bold text-lg group-hover:text-primary transition-colors">
+                            {lesson.title}
+                          </h3>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge
+                              variant="outline"
                               className={cn(
-                                "text-xs text-white border-0",
+                                "text-xs text-white border-0 font-semibold",
                                 getDifficultyColor(lesson.difficulty)
                               )}
                             >
                               {lesson.difficulty}
                             </Badge>
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
                               <Clock className="h-3 w-3" />
                               {lesson.duration}min
                             </div>
                           </div>
                         </div>
                       </div>
-                      
-                      {isCompleted ? (
-                        <CheckCircle className="h-5 w-5 text-green-500" />
-                      ) : (
-                        <Play className="h-5 w-5 text-muted-foreground" />
-                      )}
+
+                      <div className="flex flex-col items-center gap-2">
+                        {isCompleted ? (
+                          <div className="text-center">
+                            <CheckCircle className="h-6 w-6 text-green-500 animate-pulse" />
+                            <div className="text-xs font-semibold text-green-600 dark:text-green-400">
+                              Complete
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-center group-hover:scale-110 transition-transform">
+                            <Play className="h-6 w-6 text-primary opacity-60 group-hover:opacity-100" />
+                            <div className="text-xs font-semibold text-primary opacity-60 group-hover:opacity-100">
+                              Start
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {/* Description */}
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <p className="text-sm text-muted-foreground leading-relaxed font-medium">
                       {lesson.description}
                     </p>
 
-                    {/* Preview */}
-                    <div className="bg-accent/30 rounded-lg p-3">
-                      <p className="text-sm font-medium mb-1">Preview:</p>
-                      <p className="text-sm text-primary font-semibold">
-                        {lesson.phrases[0].armenian}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {lesson.phrases[0].english}
-                      </p>
+                    {/* Enhanced Preview */}
+                    <div className={cn(
+                      "relative rounded-xl p-4 border-2 border-dashed border-primary/20",
+                      "bg-gradient-to-br from-primary/5 to-accent/10",
+                      "group-hover:border-solid group-hover:border-primary/40",
+                      "transition-all duration-300"
+                    )}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Sparkles className="h-4 w-4 text-primary" />
+                        <p className="text-sm font-bold text-primary">Preview Phrase:</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-base font-bold text-foreground">
+                          {lesson.phrases[0].armenian}
+                        </p>
+                        <p className="text-sm text-muted-foreground italic">
+                          "{lesson.phrases[0].english}"
+                        </p>
+                      </div>
                     </div>
 
-                    {/* Footer */}
-                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{lesson.phrases.length} phrases</span>
+                    {/* Enhanced Footer */}
+                    <div className="flex items-center justify-between pt-3 border-t border-border/30">
+                      <div className="flex items-center gap-3 text-xs font-medium">
+                        <div className="flex items-center gap-1 text-primary">
+                          <MessageCircle className="h-3 w-3" />
+                          <span>{lesson.phrases.length} phrases</span>
+                        </div>
                         {attempts > 0 && (
-                          <>
-                            <span>•</span>
+                          <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
+                            <User className="h-3 w-3" />
                             <span>{attempts} attempts</span>
-                          </>
+                          </div>
                         )}
                         {isCompleted && score > 0 && (
-                          <>
-                            <span>•</span>
-                            <span className="text-green-600 font-medium">{score}% score</span>
-                          </>
+                          <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
+                            <Award className="h-3 w-3" />
+                            <span>{score}% score</span>
+                          </div>
                         )}
                       </div>
-                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                      <ArrowRight className={cn(
+                        "h-4 w-4 transition-all duration-300",
+                        "group-hover:translate-x-1 group-hover:text-primary",
+                        isCompleted ? "text-green-500" : "text-muted-foreground"
+                      )} />
                     </div>
                   </div>
                 </Card>

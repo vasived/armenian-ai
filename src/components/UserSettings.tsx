@@ -8,20 +8,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { getUserPreferences, saveUserPreferences } from "@/lib/userContext";
 import { Settings, User, MessageCircle, Globe, Heart } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useNotifications } from "@/components/NotificationSystem";
 
 export const UserSettings = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [preferences, setPreferences] = useState(getUserPreferences);
-  const { toast } = useToast();
+  const notifications = useNotifications();
 
   const handleSave = () => {
     saveUserPreferences(preferences);
     setIsOpen(false);
-    toast({
-      title: "Preferences Saved",
-      description: "Your preferences have been updated and will be applied to future conversations.",
-    });
+    notifications.success(
+      "Preferences Saved",
+      "Your preferences have been updated and will be applied to future conversations."
+    );
   };
 
   const handleResetToDefault = () => {
@@ -38,10 +38,10 @@ export const UserSettings = () => {
       interests: []
     };
     setPreferences(defaultPrefs);
-    toast({
-      title: "Reset to Defaults",
-      description: "All preferences have been reset to their default values.",
-    });
+    notifications.info(
+      "Reset to Defaults",
+      "All preferences have been reset to their default values."
+    );
   };
 
   return (

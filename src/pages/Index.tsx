@@ -12,7 +12,7 @@ import { ArmenianCalendar } from "@/components/ArmenianCalendar";
 import { LearningMode } from "@/components/LearningMode";
 import { ThemeCustomizer } from "@/components/ThemeCustomizer";
 import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
-import { AchievementNotification } from "@/components/AchievementNotification";
+import { EnhancedAchievementNotification } from "@/components/EnhancedAchievementNotification";
 import { VoiceMessagePopup } from "@/components/VoiceMessagePopup";
 import { progressManager } from "@/lib/progressManager";
 import { Card } from "@/components/ui/card";
@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useToast } from "@/hooks/use-toast";
+import { useNotifications } from "@/components/NotificationSystem";
 import { generateAIResponse } from "@/lib/openai";
 import { generateMessageId } from "@/lib/utils";
 import {
@@ -59,7 +59,7 @@ const Index = () => {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const notifications = useNotifications();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Dialog states
@@ -129,10 +129,7 @@ const Index = () => {
     setSessions(prev => [newSession, ...prev]);
     setActiveSessionId(newSession.id);
     
-    toast({
-      title: "New Chat Started",
-      description: "Ready for a fresh conversation!",
-    });
+    notifications.chatAdded();
   };
 
   const handleSelectChat = (sessionId: string) => {
@@ -151,19 +148,16 @@ const Index = () => {
       }
     }
     
-    toast({
-      title: "Chat Deleted",
-      description: "Chat history has been removed.",
-    });
+    const deletedSession = sessions.find(s => s.id === sessionId);
+    notifications.chatDeleted(deletedSession?.title);
   };
 
   const handleRenameChat = (sessionId: string, newTitle: string) => {
     setSessions(prev => updateChatSession(prev, sessionId, { title: newTitle }));
     
-    toast({
-      title: "Chat Renamed",
-      description: "Chat title has been updated.",
-    });
+    const session = sessions.find(s => s.id === sessionId);
+    const oldTitle = session?.title || "Chat";
+    notifications.chatRenamed(oldTitle, newTitle);
   };
 
   const handleSendMessage = async (content: string) => {
@@ -275,16 +269,15 @@ const Index = () => {
           a.click();
           URL.revokeObjectURL(url);
 
-          toast({
-            title: "Chat Exported",
-            description: "Your conversation has been downloaded as a text file.",
-          });
+          notifications.success(
+            "Chat Exported",
+            "Your conversation has been downloaded as a text file."
+          );
         } else {
-          toast({
-            title: "No Active Chat",
-            description: "Start a conversation first to export it.",
-            variant: "destructive"
-          });
+          notifications.warning(
+            "No Active Chat",
+            "Start a conversation first to export it."
+          );
         }
         break;
       case 'calendar':
@@ -468,10 +461,10 @@ const Index = () => {
                   localStorage.clear();
                   setSessions([]);
                   setActiveSessionId(null);
-                  toast({
-                    title: "Data Cleared",
-                    description: "All chat history has been cleared.",
-                  });
+                  notifications.info(
+                    "Data Cleared",
+                    "All chat history has been cleared."
+                  );
                 }}
                 className="text-xs opacity-50 hover:opacity-100"
               >
@@ -606,13 +599,16 @@ const Index = () => {
       />
 
       {/* Achievement Notifications */}
-      <AchievementNotification />
+      <EnhancedAchievementNotification />
 
       {/* Voice Message Popup */}
       <VoiceMessagePopup
         show={voicePopupOpen}
         onClose={() => setVoicePopupOpen(false)}
       />
+
+      {/* Notification System */}
+      <notifications.NotificationComponent />
     </div>
   );
 };
