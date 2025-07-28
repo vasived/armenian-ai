@@ -26,9 +26,9 @@ export const UserSettings = () => {
 
   const handleResetToDefault = () => {
     const defaultPrefs = {
-      preferredLanguage: 'mixed' as const,
+      preferredLanguage: 'armenian' as const,
       responseStyle: 'family-like' as const,
-      armenianUsage: 'occasional' as const,
+      armenianUsage: 'frequent' as const,
       armenianScript: 'transliteration' as const,
       culturalDepth: 'moderate' as const,
       armenianLevel: 'native' as const,
