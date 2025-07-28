@@ -512,6 +512,9 @@ const Index = () => {
                     message={message.content}
                     isUser={message.isUser}
                     timestamp={message.timestamp}
+                    messageId={message.id}
+                    sessionId={activeSessionId || undefined}
+                    sessionTitle={activeSession?.title || 'Untitled Chat'}
                   />
                 ))}
                 {isLoading && <LoadingIndicator />}
