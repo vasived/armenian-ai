@@ -201,11 +201,14 @@ export const ThemeCustomizer = ({ open, onOpenChange }: ThemeCustomizerProps) =>
     if (!theme) return;
 
     const root = document.documentElement;
-    
-    // Apply CSS variables
+
+    // Only apply theme variables, preserving dark mode variables
     Object.entries(theme.cssVars).forEach(([property, value]) => {
       root.style.setProperty(property, value);
     });
+
+    // Apply data attribute for theme-specific styling
+    root.setAttribute('data-theme', themeId);
 
     setSelectedTheme(themeId);
     localStorage.setItem('hagopai_theme', themeId);
