@@ -367,16 +367,20 @@ const ChatSessionItem = ({
   onDelete,
   onSaveEdit,
   onCancelEdit,
-  onTitleChange
+  onTitleChange,
+  isNew = false,
+  isDeleting = false
 }: ChatSessionItemProps) => {
   const messageCount = session.messages.length;
   const lastMessage = session.messages[session.messages.length - 1];
 
   return (
     <div className={cn(
-      "group relative rounded-lg p-3 cursor-pointer transition-all duration-200",
+      "group relative rounded-lg p-3 cursor-pointer transition-all duration-300",
       "hover:bg-accent/50 hover:shadow-sm",
-      isActive && "bg-accent shadow-sm ring-1 ring-primary/20"
+      isActive && "bg-accent shadow-sm ring-1 ring-primary/20",
+      isNew && "animate-in slide-in-from-top-2 fade-in duration-500",
+      isDeleting && "animate-out slide-out-to-right-2 fade-out duration-300"
     )}>
       {isEditing ? (
         <div className="space-y-2">
