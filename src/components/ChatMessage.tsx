@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArmenianIcon } from "@/components/ArmenianIcon";
 import { addToFavorites, removeFromFavorites, isFavorited } from "@/lib/favorites";
+import { useNotifications } from "@/components/NotificationSystem";
 
 interface ChatMessageProps {
   message: string;
@@ -17,6 +18,7 @@ interface ChatMessageProps {
 export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, sessionTitle }: ChatMessageProps) => {
   const [copied, setCopied] = useState(false);
   const [favorited, setFavorited] = useState(false);
+  const notifications = useNotifications();
 
   useEffect(() => {
     if (messageId) {
@@ -37,12 +39,36 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
   const handleToggleFavorite = () => {
     if (!messageId || !sessionId || !sessionTitle || !timestamp) return;
 
-    if (favorited) {
-      removeFromFavorites(messageId);
-      setFavorited(false);
-    } else {
-      addToFavorites(messageId, message, isUser, timestamp, sessionId, sessionTitle);
-      setFavorited(true);
+    try {
+      if (favorited) {
+        removeFromFavorites(messageId);
+        setFavorited(false);
+        notifications.info(
+          "Removed from Favorites",
+          "Message has been unfavorited",
+          {
+            icon: <Star className="h-5 w-5 text-white" />,
+            duration: 2000
+          }
+        );
+      } else {
+        addToFavorites(messageId, message, isUser, timestamp, sessionId, sessionTitle);
+        setFavorited(true);
+        notifications.success(
+          "Added to Favorites",
+          "Message saved to your favorites",
+          {
+            icon: <Star className="h-5 w-5 text-white" />,
+            duration: 2000
+          }
+        );
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      notifications.error(
+        "Favorite Error",
+        "Failed to update favorite status"
+      );
     }
   };
 
