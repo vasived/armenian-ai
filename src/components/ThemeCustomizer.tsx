@@ -75,9 +75,11 @@ const themes: Theme[] = [
     },
     cssVars: {
       '--primary': '43 96% 56%',
+      '--primary-foreground': '0 0% 0%',
       '--secondary': '48 96% 89%',
+      '--secondary-foreground': '43 96% 25%',
       '--accent': '0 84% 60%',
-      '--background': '48 100% 96%'
+      '--accent-foreground': '0 0% 98%'
     },
     icon: <Mountain className="h-4 w-4" />
   },
@@ -93,9 +95,11 @@ const themes: Theme[] = [
     },
     cssVars: {
       '--primary': '199 89% 48%',
+      '--primary-foreground': '0 0% 98%',
       '--secondary': '191 100% 93%',
+      '--secondary-foreground': '199 89% 15%',
       '--accent': '258 90% 66%',
-      '--background': '210 40% 98%'
+      '--accent-foreground': '0 0% 98%'
     },
     icon: <Waves className="h-4 w-4" />
   },
@@ -111,9 +115,11 @@ const themes: Theme[] = [
     },
     cssVars: {
       '--primary': '262 83% 58%',
+      '--primary-foreground': '0 0% 98%',
       '--secondary': '270 100% 95%',
+      '--secondary-foreground': '262 83% 20%',
       '--accent': '43 96% 56%',
-      '--background': '0 0% 98%'
+      '--accent-foreground': '0 0% 0%'
     },
     icon: <Star className="h-4 w-4" />
   },
@@ -129,9 +135,11 @@ const themes: Theme[] = [
     },
     cssVars: {
       '--primary': '160 84% 39%',
+      '--primary-foreground': '0 0% 98%',
       '--secondary': '151 81% 86%',
+      '--secondary-foreground': '160 84% 15%',
       '--accent': '0 84% 50%',
-      '--background': '120 60% 97%'
+      '--accent-foreground': '0 0% 98%'
     },
     icon: <Heart className="h-4 w-4" />
   },
@@ -147,9 +155,11 @@ const themes: Theme[] = [
     },
     cssVars: {
       '--primary': '0 84% 60%',
+      '--primary-foreground': '0 0% 98%',
       '--secondary': '0 93% 94%',
+      '--secondary-foreground': '0 84% 20%',
       '--accent': '43 96% 56%',
-      '--background': '39 100% 97%'
+      '--accent-foreground': '0 0% 0%'
     },
     icon: <Flame className="h-4 w-4" />
   }
