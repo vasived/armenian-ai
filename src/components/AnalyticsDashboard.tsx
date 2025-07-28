@@ -57,6 +57,10 @@ interface AnalyticsData {
     month: string;
     messages: number;
   }>;
+  growthRate: number;
+  averageWordsPerMessage: number;
+  totalWords: number;
+  engagementScore: number;
 }
 
 interface AnalyticsDashboardProps {
