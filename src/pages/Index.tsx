@@ -13,6 +13,7 @@ import { LearningMode } from "@/components/LearningMode";
 import { ThemeCustomizer } from "@/components/ThemeCustomizer";
 import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
 import { AchievementNotification } from "@/components/AchievementNotification";
+import { VoiceMessagePopup } from "@/components/VoiceMessagePopup";
 import { progressManager } from "@/lib/progressManager";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
