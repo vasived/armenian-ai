@@ -13,17 +13,21 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { generateAIResponse } from "@/lib/openai";
 import { generateMessageId } from "@/lib/utils";
-import { 
-  Bot, 
-  Sparkles, 
-  Globe, 
+import {
+  Bot,
+  Sparkles,
+  Globe,
   ArrowRight,
   Heart,
   Coffee,
   BookOpen,
   Users,
   Lightbulb,
-  MessageCircle
+  MessageCircle,
+  Menu,
+  Plus,
+  Search,
+  MessageSquare
 } from "lucide-react";
 import { ArmenianIcon } from "@/components/ArmenianIcon";
 import { 
