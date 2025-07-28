@@ -1,8 +1,9 @@
 import { cn } from "@/lib/utils";
-import { Bot, User, Copy, Check } from "lucide-react";
-import { useState } from "react";
+import { Bot, User, Copy, Check, Star } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArmenianIcon } from "@/components/ArmenianIcon";
+import { addToFavorites, removeFromFavorites, isFavorited } from "@/lib/favorites";
 
 interface ChatMessageProps {
   message: string;
