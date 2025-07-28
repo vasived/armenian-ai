@@ -76,15 +76,22 @@ export const AnalyticsDashboard = ({ open, onOpenChange }: AnalyticsDashboardPro
 
   const generateAnalytics = () => {
     setIsLoading(true);
-    
-    // Get data
+
+    // Get data from progress manager
+    const userProgress = progressManager.getProgress();
+    const learningStats = progressManager.getLearningStats();
+    const chatStats = progressManager.getChatStats();
+    const usageStats = progressManager.getUsageStats();
+    const achievements = progressManager.getAchievements();
+
+    // Get additional data from localStorage
     const sessions = loadChatSessions();
     const favorites = loadFavorites();
-    
-    // Calculate basic stats
-    const totalChats = sessions.length;
+
+    // Calculate enhanced stats
+    const totalChats = Math.max(sessions.length, chatStats.totalChats);
     const allMessages = sessions.flatMap(s => s.messages);
-    const totalMessages = allMessages.length;
+    const totalMessages = Math.max(allMessages.length, chatStats.totalMessages);
     const userMessages = allMessages.filter(m => m.isUser).length;
     const aiMessages = allMessages.filter(m => !m.isUser).length;
     const favoritesCount = favorites.length;
