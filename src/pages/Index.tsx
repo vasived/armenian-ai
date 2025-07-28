@@ -68,6 +68,7 @@ const Index = () => {
   const [learningOpen, setLearningOpen] = useState(false);
   const [themesOpen, setThemesOpen] = useState(false);
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
+  const [voicePopupOpen, setVoicePopupOpen] = useState(false);
 
   const activeSession = sessions.find(s => s.id === activeSessionId) || null;
   const messages = activeSession?.messages || [];
