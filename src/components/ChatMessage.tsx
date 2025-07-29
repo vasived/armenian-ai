@@ -82,6 +82,15 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
   }, [messageId]);
 
   const handleCopy = async () => {
+    // Don't allow copying audio messages
+    if (type === 'audio') {
+      notifications.info(
+        "Cannot Copy",
+        "Voice messages cannot be copied to clipboard"
+      );
+      return;
+    }
+
     try {
       await navigator.clipboard.writeText(message);
       setCopied(true);
@@ -219,25 +228,28 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
                   </Button>
                 )}
 
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleCopy}
-                  className={cn(
-                    "h-7 w-7 p-0 transition-all duration-200",
-                    "opacity-0 group-hover:opacity-100 group-hover:scale-110",
-                    isUser
-                      ? "hover:bg-white/20 text-white/70 hover:text-white"
-                      : "hover:bg-accent hover:shadow-md",
-                    copied && "opacity-100 scale-105"
-                  )}
-                >
-                  {copied ? (
-                    <Check className="h-3.5 w-3.5 text-green-500" />
-                  ) : (
-                    <Copy className="h-3.5 w-3.5" />
-                  )}
-                </Button>
+                {/* Only show copy button for text messages */}
+                {type !== 'audio' && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCopy}
+                    className={cn(
+                      "h-7 w-7 p-0 transition-all duration-200",
+                      "opacity-0 group-hover:opacity-100 group-hover:scale-110",
+                      isUser
+                        ? "hover:bg-white/20 text-white/70 hover:text-white"
+                        : "hover:bg-accent hover:shadow-md",
+                      copied && "opacity-100 scale-105"
+                    )}
+                  >
+                    {copied ? (
+                      <Check className="h-3.5 w-3.5 text-green-500" />
+                    ) : (
+                      <Copy className="h-3.5 w-3.5" />
+                    )}
+                  </Button>
+                )}
               </div>
             </div>
           </div>
