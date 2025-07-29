@@ -116,7 +116,7 @@ export const generateUserContextPrompt = (preferences: UserPreferences): string 
   // Armenian usage preference with strong enforcement
   switch (preferences.armenianUsage) {
     case 'none':
-      contextParts.push('IMPORTANT: Do NOT use any Armenian words or phrases. Respond in English only. This is a strict requirement.');
+      contextParts.push('CRITICAL REQUIREMENT: Do NOT use ANY Armenian words, phrases, or greetings. Respond in English ONLY. No "parev", no "shnorhakaloutyoun", no Armenian words whatsoever. This is a STRICT requirement that must be followed.');
       break;
     case 'occasional':
       contextParts.push('Use Armenian words and phrases occasionally for warmth and cultural connection.');
