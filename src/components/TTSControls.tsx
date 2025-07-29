@@ -85,6 +85,7 @@ export const TTSControls = ({ text, isUser, autoSpeak = false, className }: TTSC
   const handleAudioEnd = useCallback(() => {
     if (mountedRef.current) {
       setIsPlaying(false);
+      setIsLoading(false);
       setAudioElement(null);
     }
   }, []);
