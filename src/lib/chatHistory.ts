@@ -5,6 +5,9 @@ export interface Message {
   content: string;
   isUser: boolean;
   timestamp: Date;
+  type?: 'text' | 'audio';
+  audioUrl?: string;
+  audioDuration?: number;
 }
 
 export interface ChatSession {
