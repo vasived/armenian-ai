@@ -7,8 +7,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { getUserPreferences, saveUserPreferences } from "@/lib/userContext";
-import { Settings, User, MessageCircle, Globe, Heart } from "lucide-react";
+import { Settings, User, MessageCircle, Globe, Heart, Volume2 } from "lucide-react";
 import { useNotifications } from "@/components/NotificationSystem";
+import { Switch } from "@/components/ui/switch";
+import { TTSService } from "@/lib/tts";
 
 export const UserSettings = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,7 +37,11 @@ export const UserSettings = () => {
       name: '',
       location: '',
       techBackground: '',
-      interests: []
+      interests: [],
+      ttsEnabled: true,
+      ttsAutoSpeak: false,
+      ttsVoice: 'alloy' as const,
+      ttsSpeed: 1.0
     };
     setPreferences(defaultPrefs);
     notifications.info(
@@ -61,7 +67,7 @@ export const UserSettings = () => {
         </DialogHeader>
 
         <Tabs defaultValue="personal" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="personal" className="gap-2">
               <User className="h-4 w-4" />
               Personal
@@ -73,6 +79,10 @@ export const UserSettings = () => {
             <TabsTrigger value="style" className="gap-2">
               <MessageCircle className="h-4 w-4" />
               Style
+            </TabsTrigger>
+            <TabsTrigger value="voice" className="gap-2">
+              <Volume2 className="h-4 w-4" />
+              Voice
             </TabsTrigger>
           </TabsList>
 
@@ -227,6 +237,85 @@ export const UserSettings = () => {
                 <Heart className="h-4 w-4 inline mr-2" />
                 These preferences help me understand how to communicate with you in a way that feels most comfortable and culturally appropriate.
               </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="voice" className="space-y-4">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="tts-enabled">Enable Text-to-Speech</Label>
+                  <p className="text-sm text-muted-foreground">Allow HagopAI to speak responses aloud</p>
+                </div>
+                <Switch
+                  id="tts-enabled"
+                  checked={preferences.ttsEnabled ?? true}
+                  onCheckedChange={(checked) => setPreferences(prev => ({ ...prev, ttsEnabled: checked }))}
+                />
+              </div>
+
+              {preferences.ttsEnabled && (
+                <>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="tts-auto-speak">Auto-Speak AI Responses</Label>
+                      <p className="text-sm text-muted-foreground">Automatically speak new AI messages</p>
+                    </div>
+                    <Switch
+                      id="tts-auto-speak"
+                      checked={preferences.ttsAutoSpeak ?? false}
+                      onCheckedChange={(checked) => setPreferences(prev => ({ ...prev, ttsAutoSpeak: checked }))}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Voice Selection</Label>
+                    <Select
+                      value={preferences.ttsVoice || 'alloy'}
+                      onValueChange={(value: any) => setPreferences(prev => ({ ...prev, ttsVoice: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {TTSService.getAvailableVoices().map((voice) => (
+                          <SelectItem key={voice.value} value={voice.value}>
+                            <div>
+                              <div className="font-medium">{voice.label}</div>
+                              <div className="text-xs text-muted-foreground">{voice.description}</div>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Speech Speed</Label>
+                    <Select
+                      value={String(preferences.ttsSpeed || 1.0)}
+                      onValueChange={(value) => setPreferences(prev => ({ ...prev, ttsSpeed: parseFloat(value) }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0.5">0.5× (Slow)</SelectItem>
+                        <SelectItem value="0.75">0.75× (Slower)</SelectItem>
+                        <SelectItem value="1.0">1× (Normal)</SelectItem>
+                        <SelectItem value="1.25">1.25× (Faster)</SelectItem>
+                        <SelectItem value="1.5">1.5× (Fast)</SelectItem>
+                        <SelectItem value="2.0">2× (Very Fast)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
+                    <Volume2 className="h-4 w-4 inline mr-2" />
+                    Voice features are powered by OpenAI's advanced text-to-speech technology. Usage may count towards your OpenAI API quota.
+                  </div>
+                </>
+              )}
             </div>
           </TabsContent>
         </Tabs>
