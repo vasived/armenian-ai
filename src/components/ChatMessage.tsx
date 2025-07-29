@@ -203,8 +203,9 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
   return (
     <div className={cn(
       "flex w-full group transition-all duration-500 ease-out",
-      isUser ? "justify-end" : "justify-start",
-      isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+      isUser ? "justify-end chat-message-user" : "justify-start chat-message-ai",
+      isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
+      "message-appear"
     )}>
       <div className={cn(
         "flex gap-3 max-w-[85%]",
