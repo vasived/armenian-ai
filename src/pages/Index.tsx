@@ -199,7 +199,7 @@ const Index = () => {
     setSessions(prev => updateChatSession(prev, currentSessionId!, {
       messages: [...existingMessages, userMessage, aiMessage],
       title: prev.find(s => s.id === currentSessionId)?.title === 'New Chat'
-        ? 'Live Voice Chat'
+        ? generateChatTitle(userText)
         : prev.find(s => s.id === currentSessionId)?.title
     }));
 
