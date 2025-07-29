@@ -118,6 +118,20 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
       if (!stream) return;
     }
 
+    // Set up voice activity detection
+    try {
+      audioContextRef.current = new AudioContext();
+      const source = audioContextRef.current.createMediaStreamSource(streamRef.current);
+      analyserRef.current = audioContextRef.current.createAnalyser();
+      analyserRef.current.fftSize = 256;
+      source.connect(analyserRef.current);
+
+      // Start monitoring voice activity
+      monitorVoiceActivity();
+    } catch (err) {
+      console.warn('Voice activity detection not available:', err);
+    }
+
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       const recognition = new SpeechRecognition();
