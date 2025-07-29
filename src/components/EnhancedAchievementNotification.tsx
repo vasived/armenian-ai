@@ -59,19 +59,20 @@ export const EnhancedAchievementNotification = () => {
       />
       
       {/* Achievement Card */}
-      <div 
+      <div
         className={cn(
           "fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[100]",
           "transition-all duration-500 ease-out",
+          "w-full max-w-sm mx-4 sm:mx-0 sm:max-w-md",
           isVisible && !isExiting
-            ? "scale-100 opacity-100 rotate-0" 
+            ? "scale-100 opacity-100 rotate-0"
             : isExiting
             ? "scale-90 opacity-0 rotate-6"
             : "scale-75 opacity-0 -rotate-12"
         )}
       >
         <Card className={cn(
-          "relative p-8 max-w-md w-full mx-4",
+          "relative p-4 sm:p-8 w-full",
           "bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50",
           "dark:from-yellow-950/30 dark:via-orange-950/30 dark:to-red-950/30",
           "border-2 border-yellow-300 dark:border-yellow-600",
@@ -105,10 +106,10 @@ export const EnhancedAchievementNotification = () => {
           </Button>
 
           {/* Header with trophy */}
-          <div className="text-center mb-6">
-            <div className="relative mx-auto w-20 h-20 mb-4">
+          <div className="text-center mb-4 sm:mb-6">
+            <div className="relative mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-3 sm:mb-4">
               <div className={cn(
-                "w-20 h-20 rounded-full flex items-center justify-center text-white text-3xl",
+                "w-16 sm:w-20 h-16 sm:h-20 rounded-full flex items-center justify-center text-white text-2xl sm:text-3xl",
                 "bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500",
                 "shadow-lg shadow-yellow-500/50",
                 "animate-bounce"
@@ -116,25 +117,25 @@ export const EnhancedAchievementNotification = () => {
                 {achievement.icon}
               </div>
               {/* Glow effect */}
-              <div className="absolute inset-0 w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 animate-ping opacity-20" />
+              <div className="absolute inset-0 w-16 sm:w-20 h-16 sm:h-20 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 animate-ping opacity-20" />
             </div>
-            
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Trophy className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
-              <span className="text-lg font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
+
+            <div className="flex items-center justify-center gap-1 sm:gap-2 mb-2">
+              <Trophy className="h-4 sm:h-5 w-4 sm:w-5 text-yellow-600 dark:text-yellow-400" />
+              <span className="text-base sm:text-lg font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
                 Achievement Unlocked!
               </span>
-              <Trophy className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+              <Trophy className="h-4 sm:h-5 w-4 sm:w-5 text-yellow-600 dark:text-yellow-400" />
             </div>
           </div>
 
           {/* Achievement content */}
-          <div className="text-center space-y-4">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <div className="text-center space-y-3 sm:space-y-4">
+            <h3 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
               {achievement.title}
             </h3>
-            
-            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+
+            <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed">
               {achievement.description}
             </p>
             

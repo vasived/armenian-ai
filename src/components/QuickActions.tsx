@@ -83,14 +83,14 @@ export const QuickActions = ({ onAction, className }: QuickActionsProps) => {
   ];
 
   return (
-    <div className={cn("fixed bottom-6 right-6 z-50", className)}>
+    <div className={cn("fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-50", className)}>
       {/* Expanded Actions */}
       {isExpanded && (
-        <div className="mb-4 space-y-2">
+        <div className="mb-3 sm:mb-4 space-y-2 max-w-[calc(100vw-2rem)] sm:max-w-none">
           {actions.map((action) => (
             <Card
               key={action.id}
-              className="p-3 backdrop-blur-sm bg-card/90 border-border/20 shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer group"
+              className="p-3 backdrop-blur-sm bg-card/90 border-border/20 shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer group w-full sm:w-auto"
               onClick={() => {
                 onAction(action.id);
                 setIsExpanded(false);
@@ -98,7 +98,7 @@ export const QuickActions = ({ onAction, className }: QuickActionsProps) => {
             >
               <div className="flex items-center gap-3">
                 <div className={cn(
-                  "p-2 rounded-lg text-white transition-colors",
+                  "p-2 rounded-lg text-white transition-colors flex-shrink-0",
                   action.color
                 )}>
                   {action.icon}
@@ -122,16 +122,16 @@ export const QuickActions = ({ onAction, className }: QuickActionsProps) => {
         onClick={() => setIsExpanded(!isExpanded)}
         size="lg"
         className={cn(
-          "h-14 w-14 rounded-full shadow-lg transition-all duration-300 transform",
+          "h-12 w-12 sm:h-14 sm:w-14 rounded-full shadow-lg transition-all duration-300 transform",
           "bg-gradient-armenian hover:bg-gradient-armenian/90",
           "border-2 border-white/20",
           isExpanded ? "rotate-45 scale-110" : "hover:scale-105"
         )}
       >
         {isExpanded ? (
-          <span className="text-2xl font-bold text-white">×</span>
+          <span className="text-xl sm:text-2xl font-bold text-white">×</span>
         ) : (
-          <Zap className="h-6 w-6 text-white" />
+          <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
         )}
       </Button>
 

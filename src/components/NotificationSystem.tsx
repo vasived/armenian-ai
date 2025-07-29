@@ -96,14 +96,14 @@ const SingleNotification = ({ notification, onRemove }: { notification: Notifica
 
   return (
     <Card className={cn(
-      "p-6 max-w-sm pointer-events-auto mb-3",
+      "p-4 sm:p-6 w-full sm:max-w-sm pointer-events-auto mb-3",
       config.bgClass,
       config.borderClass,
       "shadow-xl",
       config.shadowClass,
       "transition-all duration-300 ease-out",
-      isVisible 
-        ? "translate-y-0 opacity-100 scale-100" 
+      isVisible
+        ? "translate-y-0 opacity-100 scale-100"
         : "translate-y-4 opacity-0 scale-95"
     )}>
       {/* Header */}
@@ -184,7 +184,7 @@ export const NotificationSystem = ({ notifications, onRemove }: NotificationSyst
   if (notifications.length === 0) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-[100] pointer-events-none max-h-[80vh] overflow-hidden flex flex-col-reverse">
+    <div className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 left-4 sm:left-auto z-[100] pointer-events-none max-h-[80vh] overflow-hidden flex flex-col-reverse">
       {notifications.map((notification) => (
         <SingleNotification
           key={notification.id}
