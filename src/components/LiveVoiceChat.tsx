@@ -159,19 +159,19 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
         if (mountedRef.current) {
           setCurrentTranscript(finalTranscript + interimTranscript);
           
-          if (finalTranscript.trim()) {
-          // Reset silence timer on final transcript
-          if (silenceTimerRef.current) {
-            clearTimeout(silenceTimerRef.current);
-          }
-
-          // Set timer to process after silence (longer delay for better accuracy)
-          silenceTimerRef.current = setTimeout(() => {
-            if (mountedRef.current && finalTranscript.trim() && !voiceActivityRef.current && state === 'listening') {
-              processUserInput(finalTranscript.trim());
+          if (finalTranscript.trim().length > 10) { // Only process if meaningful content
+            // Reset silence timer on final transcript
+            if (silenceTimerRef.current) {
+              clearTimeout(silenceTimerRef.current);
             }
-          }, 2000); // Process after 2 seconds of silence and no voice activity
-        }
+
+            // Set timer to process after silence (shorter delay for better UX)
+            silenceTimerRef.current = setTimeout(() => {
+              if (mountedRef.current && finalTranscript.trim() && state === 'listening') {
+                processUserInput(finalTranscript.trim());
+              }
+            }, 1500); // Process after 1.5 seconds of silence
+          }
         }
       };
 
@@ -202,15 +202,19 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
       recognition.onend = () => {
         if (mountedRef.current && state === 'listening' && !isProcessingRef.current) {
           // Only restart listening if we're not processing and still in listening state
+          // Add a slight delay to prevent rapid restarts
           setTimeout(() => {
             if (mountedRef.current && state === 'listening' && !isProcessingRef.current) {
               try {
                 recognition.start();
               } catch (error) {
                 console.warn('Failed to restart speech recognition:', error);
+                // If restart fails too many times, stop listening
+                setError('Speech recognition failed. Please restart manually.');
+                setState('idle');
               }
             }
-          }, 100);
+          }, 200);
         }
       };
 
@@ -270,22 +274,26 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
 
         // Speak AI response
         setState('speaking');
-        
-        const audio = await TTSService.speak(aiResponse, { 
-          voice: userPrefs.ttsVoice || 'alloy', 
-          speed: userPrefs.ttsSpeed || 1.0 
+
+        const audio = await TTSService.speak(aiResponse, {
+          voice: userPrefs.ttsVoice || 'alloy',
+          speed: userPrefs.ttsSpeed || 1.0
         });
-        
+
         audio.addEventListener('ended', () => {
           if (mountedRef.current) {
             setState('idle');
             setLastAIResponse('');
             setCurrentTranscript('');
-            // Don't auto-restart listening to prevent AI from talking to itself
-            // User needs to manually start conversation again
+            // Auto-restart listening for seamless conversation
+            setTimeout(() => {
+              if (mountedRef.current && state !== 'idle') {
+                startListening();
+              }
+            }, 500); // Small delay before listening again
           }
         });
-        
+
         await audio.play();
       }
     } catch (error: any) {
@@ -324,21 +332,10 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
 
       // Calculate average volume
       const average = dataArray.reduce((a, b) => a + b) / bufferLength;
-      const threshold = 20; // Adjust this value to fine-tune sensitivity
+      const threshold = 25; // Slightly higher threshold for better detection
 
       const hasVoiceActivity = average > threshold;
-
-      if (hasVoiceActivity !== voiceActivityRef.current) {
-        voiceActivityRef.current = hasVoiceActivity;
-
-        if (hasVoiceActivity && state === 'listening') {
-          // Reset silence timer when voice activity is detected
-          if (silenceTimerRef.current) {
-            clearTimeout(silenceTimerRef.current);
-            silenceTimerRef.current = null;
-          }
-        }
-      }
+      voiceActivityRef.current = hasVoiceActivity;
 
       if (state === 'listening') {
         requestAnimationFrame(checkActivity);
@@ -480,7 +477,7 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
               </>
             ) : state === 'speaking' ? (
               <>
-                <VolumeX className="h-4 w-4 mr-2" />
+                <Volume2 className="h-4 w-4 mr-2" />
                 AI Speaking...
               </>
             ) : (
