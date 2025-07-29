@@ -31,6 +31,9 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const mountedRef = useRef(true);
   const isProcessingRef = useRef(false);
+  const voiceActivityRef = useRef<boolean>(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
 
   const userPrefs = getUserPreferences();
   const notifications = useNotifications();
