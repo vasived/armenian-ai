@@ -162,6 +162,51 @@ const Index = () => {
     notifications.chatRenamed(oldTitle, newTitle);
   };
 
+  const handleLiveVoiceConversation = async (userText: string, aiResponse: string) => {
+    let currentSessionId = activeSessionId;
+
+    // Create new session if none exists
+    if (!currentSessionId) {
+      const newSession = createNewChatSession();
+      setSessions(prev => [newSession, ...prev]);
+      setActiveSessionId(newSession.id);
+      currentSessionId = newSession.id;
+    }
+
+    // Get current session
+    const currentSession = sessions.find(s => s.id === currentSessionId);
+    const existingMessages = currentSession?.messages || [];
+
+    // Create user message
+    const userMessage: Message = {
+      id: generateMessageId(),
+      content: userText,
+      isUser: true,
+      timestamp: new Date(),
+      type: 'text'
+    };
+
+    // Create AI response message
+    const aiMessage: Message = {
+      id: generateMessageId(),
+      content: aiResponse,
+      isUser: false,
+      timestamp: new Date(),
+      type: 'text'
+    };
+
+    // Update session with both messages
+    setSessions(prev => updateChatSession(prev, currentSessionId!, {
+      messages: [...existingMessages, userMessage, aiMessage],
+      title: prev.find(s => s.id === currentSessionId)?.title === 'New Chat'
+        ? 'Live Voice Chat'
+        : prev.find(s => s.id === currentSessionId)?.title
+    }));
+
+    // Track progress
+    progressManager.updateChatProgress(true, !currentSession);
+  };
+
   const handleSendVoiceMessage = async (audioBlob: Blob, duration: number, transcript?: string) => {
     let currentSessionId = activeSessionId;
 
