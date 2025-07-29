@@ -704,6 +704,13 @@ const Index = () => {
         onSendVoiceMessage={handleSendVoiceMessage}
       />
 
+      {/* Live Voice Chat */}
+      <LiveVoiceChat
+        show={liveVoiceChatOpen}
+        onClose={() => setLiveVoiceChatOpen(false)}
+        onConversation={handleLiveVoiceConversation}
+      />
+
       {/* Notification System */}
       <notifications.NotificationComponent />
     </div>
