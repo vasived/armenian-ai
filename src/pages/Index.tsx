@@ -330,7 +330,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5 flex">
-      {/* Sidebar */}
+      {/* Desktop Sidebar */}
       <ChatSidebar
         sessions={sessions}
         activeSessionId={activeSessionId}
@@ -338,105 +338,59 @@ const Index = () => {
         onSelectChat={handleSelectChat}
         onDeleteChat={handleDeleteChat}
         onRenameChat={handleRenameChat}
-        className="w-80 border-r border-border/20 bg-card/30 backdrop-blur-sm"
+        className="hidden lg:flex w-80 border-r border-border/20 bg-card/30 backdrop-blur-sm"
       />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-h-screen">
         {/* Header */}
         <header className="border-b border-border/20 bg-card/30 backdrop-blur-sm">
-          <div className="flex items-center justify-between px-6 py-4">
-            <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               {/* Mobile Menu Trigger */}
               <Sheet>
                 <SheetTrigger asChild>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="lg:hidden"
+                    className="lg:hidden h-9 w-9"
                   >
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-80 p-0">
-                  <div className="flex flex-col h-full">
-                    {/* Header */}
-                    <div className="p-4 border-b border-border/20">
-                      <Button
-                        onClick={handleNewChat}
-                        className="w-full gap-2 bg-gradient-armenian hover:bg-gradient-armenian/90 text-white shadow-lg"
-                        size="lg"
-                      >
-                        <Plus className="h-4 w-4" />
-                        New Chat
-                      </Button>
-
-                      {/* Search */}
-                      <div className="mt-3 relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          placeholder="Search chats..."
-                          className="pl-9 h-9"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Chat History */}
-                    <ScrollArea className="flex-1 px-2">
-                      <div className="space-y-1 p-2">
-                        {sessions.length === 0 ? (
-                          <div className="text-center py-8 text-muted-foreground">
-                            <MessageSquare className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                            <p className="text-sm">No chat history yet</p>
-                            <p className="text-xs mt-1 opacity-70">Start a conversation to see it here</p>
-                          </div>
-                        ) : (
-                          sessions.map(session => (
-                            <div
-                              key={`mobile-${session.id}`}
-                              className="p-3 rounded-lg cursor-pointer hover:bg-accent/50 transition-all"
-                              onClick={() => handleSelectChat(session.id)}
-                            >
-                              <h4 className="text-sm font-medium truncate">{session.title}</h4>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {session.messages.length} messages
-                              </p>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </ScrollArea>
-
-                    {/* Footer */}
-                    <div className="p-4 border-t border-border/20">
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Bot className="h-4 w-4" />
-                        <span>{sessions.length} chat{sessions.length !== 1 ? 's' : ''}</span>
-                      </div>
-                    </div>
-                  </div>
+                  <ChatSidebar
+                    sessions={sessions}
+                    activeSessionId={activeSessionId}
+                    onNewChat={handleNewChat}
+                    onSelectChat={handleSelectChat}
+                    onDeleteChat={handleDeleteChat}
+                    onRenameChat={handleRenameChat}
+                    keyPrefix="mobile"
+                  />
                 </SheetContent>
               </Sheet>
               
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <div className="relative">
-                  <ArmenianIcon className="h-10 w-10" />
-                  <div className="absolute -top-1 -right-1 h-4 w-4 bg-gradient-armenian rounded-full flex items-center justify-center">
-                    <Sparkles className="h-2.5 w-2.5 text-white animate-pulse" />
+                  <ArmenianIcon className="h-8 sm:h-10 w-8 sm:w-10" />
+                  <div className="absolute -top-1 -right-1 h-3 sm:h-4 w-3 sm:w-4 bg-gradient-armenian rounded-full flex items-center justify-center">
+                    <Sparkles className="h-2 sm:h-2.5 w-2 sm:w-2.5 text-white animate-pulse" />
                   </div>
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold gradient-text">HagopAI</h1>
-                  <p className="text-sm text-muted-foreground flex items-center gap-2">
-                    <Bot className="h-3.5 w-3.5" />
-                    Your Armenian Cultural Companion
-                    <Globe className="h-3.5 w-3.5 text-accent" />
+                  <h1 className="text-xl sm:text-2xl font-bold gradient-text">HagopAI</h1>
+                  <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1 sm:gap-2">
+                    <Bot className="h-3 sm:h-3.5 w-3 sm:w-3.5" />
+                    <span className="hidden sm:inline">Your Armenian Cultural Companion</span>
+                    <span className="sm:hidden">Armenian AI</span>
+                    <Globe className="h-3 sm:h-3.5 w-3 sm:w-3.5 text-accent" />
                   </p>
                 </div>
               </div>
 
               {activeSession && (
-                <div className="hidden md:flex items-center gap-3 ml-6 pl-6 border-l border-border/20">
+                <div className="hidden xl:flex items-center gap-3 ml-6 pl-6 border-l border-border/20">
                   <MessageCircle className="h-5 w-5 text-muted-foreground" />
                   <div>
                     <p className="font-medium text-sm">{activeSession.title}</p>
@@ -448,8 +402,8 @@ const Index = () => {
               )}
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20">
+            <div className="flex items-center gap-1 sm:gap-3">
+              <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                 <span className="text-sm font-medium text-green-700 dark:text-green-400">Live AI</span>
               </div>
@@ -466,12 +420,12 @@ const Index = () => {
                     "All chat history has been cleared."
                   );
                 }}
-                className="text-xs opacity-50 hover:opacity-100"
+                className="text-xs opacity-50 hover:opacity-100 hidden sm:flex"
               >
                 Clear All
               </Button>
               <FavoritesDialog>
-                <Button variant="ghost" size="sm" className="gap-2">
+                <Button variant="ghost" size="sm" className="gap-1 sm:gap-2 h-8 sm:h-9 px-2 sm:px-3">
                   <Star className="h-4 w-4" />
                   <span className="hidden sm:inline">Favorites</span>
                 </Button>
@@ -486,48 +440,48 @@ const Index = () => {
         <div className="flex-1 flex flex-col">
           {messages.length === 0 ? (
             /* Welcome Screen */
-            <div className="flex-1 flex flex-col items-center justify-center p-8">
-              <div className="max-w-2xl mx-auto text-center space-y-8">
-                <div className="space-y-4">
-                  <div className="mx-auto w-20 h-20 bg-gradient-armenian rounded-full flex items-center justify-center shadow-2xl">
-                    <ArmenianIcon className="h-12 w-12 text-white" />
+            <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8">
+              <div className="max-w-2xl mx-auto text-center space-y-6 sm:space-y-8">
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="mx-auto w-16 sm:w-20 h-16 sm:h-20 bg-gradient-armenian rounded-full flex items-center justify-center shadow-2xl">
+                    <ArmenianIcon className="h-10 sm:h-12 w-10 sm:w-12 text-white" />
                   </div>
-                  <h2 className="text-3xl font-bold gradient-text">Parev! Welcome to HagopAI</h2>
-                  <p className="text-xl text-muted-foreground leading-relaxed">
-                    Your Armenian friend in the digital world. Ask me about culture, family, business, 
+                  <h2 className="text-2xl sm:text-3xl font-bold gradient-text">Parev! Welcome to HagopAI</h2>
+                  <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed px-4">
+                    Your Armenian friend in the digital world. Ask me about culture, family, business,
                     language - or just chat about life!
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-3xl mx-auto">
                   {examplePrompts.map((example, index) => (
-                    <Card 
+                    <Card
                       key={index}
-                      className="p-6 cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105 group bg-gradient-to-br from-card to-card/50"
+                      className="p-4 sm:p-6 cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105 group bg-gradient-to-br from-card to-card/50"
                       onClick={() => handleSendMessage(example.prompt)}
                     >
-                      <div className="flex items-start gap-4">
+                      <div className="flex items-start gap-3 sm:gap-4">
                         <div className={`${example.color} group-hover:scale-110 transition-transform`}>
                           {example.icon}
                         </div>
                         <div className="flex-1">
                           <h3 className="font-semibold text-sm mb-2">{example.title}</h3>
-                          <p className="text-sm text-muted-foreground leading-relaxed">
+                          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                             {example.prompt}
                           </p>
-                          <ArrowRight className="h-4 w-4 mt-3 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                          <ArrowRight className="h-4 w-4 mt-2 sm:mt-3 text-muted-foreground group-hover:translate-x-1 transition-transform" />
                         </div>
                       </div>
                     </Card>
                   ))}
                 </div>
 
-                <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <Lightbulb className="h-4 w-4" />
                     <span>Powered by AI</span>
                   </div>
-                  <div className="w-1 h-1 bg-muted-foreground rounded-full"></div>
+                  <div className="hidden sm:block w-1 h-1 bg-muted-foreground rounded-full"></div>
                   <div className="flex items-center gap-2">
                     <Globe className="h-4 w-4" />
                     <span>English & Western Armenian</span>
@@ -538,7 +492,7 @@ const Index = () => {
           ) : (
             /* Chat Messages */
             <div className="flex-1 overflow-y-auto">
-              <div className="max-w-4xl mx-auto p-6 space-y-6">
+              <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
                 {messages.map((message) => (
                   <ChatMessage
                     key={message.id}
