@@ -14,6 +14,7 @@ import { ThemeCustomizer } from "@/components/ThemeCustomizer";
 import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
 import { EnhancedAchievementNotification } from "@/components/EnhancedAchievementNotification";
 import { VoiceRecorder } from "@/components/VoiceRecorder";
+import { LiveVoiceChat } from "@/components/LiveVoiceChat";
 import { progressManager } from "@/lib/progressManager";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
