@@ -165,18 +165,18 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
           setCurrentTranscript(finalTranscript + interimTranscript);
           
           if (finalTranscript.trim()) {
-            // Reset silence timer on final transcript
-            if (silenceTimerRef.current) {
-              clearTimeout(silenceTimerRef.current);
-            }
-            
-            // Set timer to process after silence
-            silenceTimerRef.current = setTimeout(() => {
-              if (mountedRef.current && finalTranscript.trim()) {
-                processUserInput(finalTranscript.trim());
-              }
-            }, 1500); // Process after 1.5 seconds of silence
+          // Reset silence timer on final transcript
+          if (silenceTimerRef.current) {
+            clearTimeout(silenceTimerRef.current);
           }
+
+          // Set timer to process after silence (longer delay for better accuracy)
+          silenceTimerRef.current = setTimeout(() => {
+            if (mountedRef.current && finalTranscript.trim() && !voiceActivityRef.current) {
+              processUserInput(finalTranscript.trim());
+            }
+          }, 2000); // Process after 2 seconds of silence and no voice activity
+        }
         }
       };
 
