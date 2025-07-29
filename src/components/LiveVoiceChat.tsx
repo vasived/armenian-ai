@@ -311,6 +311,43 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
     }
   }, [state, startListening, stopListening]);
 
+  const monitorVoiceActivity = useCallback(() => {
+    if (!analyserRef.current || !mountedRef.current) return;
+
+    const bufferLength = analyserRef.current.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    const checkActivity = () => {
+      if (!analyserRef.current || !mountedRef.current) return;
+
+      analyserRef.current.getByteFrequencyData(dataArray);
+
+      // Calculate average volume
+      const average = dataArray.reduce((a, b) => a + b) / bufferLength;
+      const threshold = 20; // Adjust this value to fine-tune sensitivity
+
+      const hasVoiceActivity = average > threshold;
+
+      if (hasVoiceActivity !== voiceActivityRef.current) {
+        voiceActivityRef.current = hasVoiceActivity;
+
+        if (hasVoiceActivity && state === 'listening') {
+          // Reset silence timer when voice activity is detected
+          if (silenceTimerRef.current) {
+            clearTimeout(silenceTimerRef.current);
+            silenceTimerRef.current = null;
+          }
+        }
+      }
+
+      if (state === 'listening') {
+        requestAnimationFrame(checkActivity);
+      }
+    };
+
+    checkActivity();
+  }, [state]);
+
   const handleClose = () => {
     setIsVisible(false);
     setTimeout(() => {
