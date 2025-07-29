@@ -297,6 +297,7 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
                   <TTSControls
                     text={message}
                     isUser={isUser}
+                    autoSpeak={true}
                   />
                 )}
 
