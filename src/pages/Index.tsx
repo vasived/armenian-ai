@@ -70,6 +70,7 @@ const Index = () => {
   const [themesOpen, setThemesOpen] = useState(false);
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const [voicePopupOpen, setVoicePopupOpen] = useState(false);
+  const [liveVoiceChatOpen, setLiveVoiceChatOpen] = useState(false);
 
   const activeSession = sessions.find(s => s.id === activeSessionId) || null;
   const messages = activeSession?.messages || [];
