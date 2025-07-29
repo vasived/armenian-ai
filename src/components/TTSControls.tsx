@@ -62,8 +62,14 @@ export const TTSControls = ({ text, isUser, autoSpeak = false, className }: TTSC
   // Track current audio state
   useEffect(() => {
     const currentAudio = TTSService.getCurrentAudio();
-    setIsPlaying(currentAudio === audioElement && TTSService.isCurrentlyPlaying());
-  }, [audioElement]);
+    const isCurrentlyPlaying = TTSService.isCurrentlyPlaying();
+    setIsPlaying(currentAudio === audioElement && isCurrentlyPlaying);
+
+    // Clear loading if no audio is playing
+    if (!isCurrentlyPlaying && isLoading && !audioElement) {
+      setIsLoading(false);
+    }
+  }, [audioElement, isLoading]);
 
   // Cleanup on unmount
   useEffect(() => {
