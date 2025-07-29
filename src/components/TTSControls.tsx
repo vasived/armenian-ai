@@ -5,25 +5,38 @@ import { Volume2, VolumeX, Loader2, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TTSService, TTSOptions } from "@/lib/tts";
 import { useNotifications } from "@/components/NotificationSystem";
+import { getUserPreferences, saveUserPreferences } from "@/lib/userContext";
 
 interface TTSControlsProps {
   text: string;
   isUser: boolean;
+  autoSpeak?: boolean;
   className?: string;
 }
 
-export const TTSControls = ({ text, isUser, className }: TTSControlsProps) => {
+export const TTSControls = ({ text, isUser, autoSpeak = false, className }: TTSControlsProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
-  const [voice, setVoice] = useState<TTSOptions['voice']>('alloy');
-  const [speed, setSpeed] = useState<number>(1.0);
+  const userPrefs = getUserPreferences();
+  const [voice, setVoice] = useState<TTSOptions['voice']>(userPrefs.ttsVoice || 'alloy');
+  const [speed, setSpeed] = useState<number>(userPrefs.ttsSpeed || 1.0);
   const notifications = useNotifications();
 
   useEffect(() => {
     // Check if this audio is currently playing
     const currentAudio = TTSService.getCurrentAudio();
     setIsPlaying(currentAudio === audioElement && TTSService.isCurrentlyPlaying());
+
+    // Auto-speak if enabled and this is an AI message
+    if (autoSpeak && userPrefs.ttsAutoSpeak && userPrefs.ttsEnabled && !isUser && text.trim()) {
+      // Small delay to ensure UI is ready
+      const timer = setTimeout(() => {
+        handleSpeak();
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
 
     // Clean up when component unmounts
     return () => {
@@ -32,7 +45,7 @@ export const TTSControls = ({ text, isUser, className }: TTSControlsProps) => {
         audioElement.removeEventListener('error', handleAudioError);
       }
     };
-  }, [audioElement]);
+  }, [audioElement, autoSpeak, text]);
 
   const handleAudioEnd = () => {
     setIsPlaying(false);
@@ -142,7 +155,11 @@ export const TTSControls = ({ text, isUser, className }: TTSControlsProps) => {
             {voices.map((voiceOption) => (
               <DropdownMenuItem
                 key={voiceOption.value}
-                onClick={() => setVoice(voiceOption.value as TTSOptions['voice'])}
+                onClick={() => {
+                  const newVoice = voiceOption.value as TTSOptions['voice'];
+                  setVoice(newVoice);
+                  saveUserPreferences({ ttsVoice: newVoice });
+                }}
                 className={cn(
                   "text-sm cursor-pointer",
                   voice === voiceOption.value && "bg-accent font-semibold"
@@ -161,11 +178,14 @@ export const TTSControls = ({ text, isUser, className }: TTSControlsProps) => {
                 {speedOptions.map((speedOption) => (
                   <button
                     key={speedOption.value}
-                    onClick={() => setSpeed(speedOption.value)}
+                    onClick={() => {
+                      setSpeed(speedOption.value);
+                      saveUserPreferences({ ttsSpeed: speedOption.value });
+                    }}
                     className={cn(
                       "px-2 py-1 text-xs rounded border hover:bg-accent transition-colors",
-                      speed === speedOption.value 
-                        ? "bg-accent font-semibold border-accent-foreground" 
+                      speed === speedOption.value
+                        ? "bg-accent font-semibold border-accent-foreground"
                         : "border-border"
                     )}
                   >
