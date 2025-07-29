@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, Download } from "lucide-react";
+import { Play, Pause, Download, Mic } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AudioMessageProps {
@@ -67,62 +67,134 @@ export const AudioMessage = ({ audioUrl, duration, isUser, className }: AudioMes
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className={cn(
-      "flex items-center gap-3 p-3 rounded-lg border max-w-xs",
-      isUser 
-        ? "bg-chat-user border-chat-user/20" 
-        : "bg-chat-ai border-chat-ai/20",
-      className
-    )}>
-      <Button
-        onClick={togglePlayback}
-        disabled={!isLoaded}
-        size="sm"
-        variant="ghost"
-        className={cn(
-          "h-10 w-10 rounded-full flex-shrink-0",
-          isUser ? "hover:bg-white/10" : "hover:bg-black/10"
-        )}
-      >
-        {isPlaying ? (
-          <Pause className="h-4 w-4" />
-        ) : (
-          <Play className="h-4 w-4" />
-        )}
-      </Button>
-
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-xs font-medium opacity-70">
-            Voice Message
-          </span>
-          <span className="text-xs opacity-60">
-            {formatTime(currentTime)} / {formatTime(duration)}
-          </span>
+    <div className={cn("w-full", className)}>
+      {/* Voice Message Header */}
+      <div className="flex items-center gap-2 mb-3">
+        <div className={cn(
+          "p-1.5 rounded-full",
+          isUser 
+            ? "bg-white/20" 
+            : "bg-primary/20"
+        )}>
+          <Mic className={cn(
+            "h-3 w-3",
+            isUser ? "text-white/80" : "text-primary"
+          )} />
         </div>
-        
-        <div className="w-full bg-black/10 dark:bg-white/10 rounded-full h-1.5">
-          <div 
-            className={cn(
-              "h-full rounded-full transition-all duration-200",
-              isUser ? "bg-white/70" : "bg-primary/70"
-            )}
-            style={{ width: `${progress}%` }}
-          />
-        </div>
+        <span className={cn(
+          "text-xs font-medium",
+          isUser ? "text-white/80" : "text-muted-foreground"
+        )}>
+          Voice Message
+        </span>
       </div>
 
-      <Button
-        onClick={downloadAudio}
-        size="sm"
-        variant="ghost"
-        className={cn(
-          "h-8 w-8 flex-shrink-0",
-          isUser ? "hover:bg-white/10" : "hover:bg-black/10"
-        )}
-      >
-        <Download className="h-3 w-3" />
-      </Button>
+      {/* Audio Player */}
+      <div className={cn(
+        "flex items-center gap-3 p-3 rounded-xl",
+        isUser 
+          ? "bg-white/10 border border-white/20" 
+          : "bg-muted/50 border border-border/30"
+      )}>
+        {/* Play/Pause Button */}
+        <Button
+          onClick={togglePlayback}
+          disabled={!isLoaded}
+          size="sm"
+          variant="ghost"
+          className={cn(
+            "h-10 w-10 rounded-full flex-shrink-0 transition-all duration-200",
+            isUser 
+              ? "hover:bg-white/20 text-white/90 hover:text-white border border-white/30" 
+              : "hover:bg-primary/10 text-primary border border-primary/30",
+            isPlaying && "scale-105"
+          )}
+        >
+          {isPlaying ? (
+            <Pause className="h-4 w-4" />
+          ) : (
+            <Play className="h-4 w-4 ml-0.5" />
+          )}
+        </Button>
+
+        {/* Waveform and Progress */}
+        <div className="flex-1 min-w-0">
+          {/* Waveform Visual */}
+          <div className="flex items-center justify-center gap-1 mb-2 h-6">
+            {[...Array(20)].map((_, i) => (
+              <div
+                key={i}
+                className={cn(
+                  "w-1 rounded-full transition-all duration-200",
+                  isUser ? "bg-white/40" : "bg-primary/40"
+                )}
+                style={{
+                  height: `${Math.random() * 16 + 8}px`,
+                  opacity: progress > (i * 5) ? 0.8 : 0.3,
+                  backgroundColor: progress > (i * 5) 
+                    ? isUser ? "rgba(255,255,255,0.8)" : "hsl(var(--primary))" 
+                    : undefined
+                }}
+              />
+            ))}
+          </div>
+          
+          {/* Progress Bar */}
+          <div className={cn(
+            "w-full h-1 rounded-full overflow-hidden",
+            isUser ? "bg-white/20" : "bg-primary/20"
+          )}>
+            <div 
+              className={cn(
+                "h-full rounded-full transition-all duration-200",
+                isUser ? "bg-white/80" : "bg-primary"
+              )}
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          
+          {/* Time Display */}
+          <div className="flex items-center justify-between mt-1">
+            <span className={cn(
+              "text-xs font-mono",
+              isUser ? "text-white/70" : "text-muted-foreground"
+            )}>
+              {formatTime(currentTime)}
+            </span>
+            <span className={cn(
+              "text-xs font-mono",
+              isUser ? "text-white/70" : "text-muted-foreground"
+            )}>
+              {formatTime(duration)}
+            </span>
+          </div>
+        </div>
+
+        {/* Download Button */}
+        <Button
+          onClick={downloadAudio}
+          size="sm"
+          variant="ghost"
+          className={cn(
+            "h-8 w-8 flex-shrink-0 opacity-60 hover:opacity-100 transition-all duration-200",
+            isUser 
+              ? "hover:bg-white/20 text-white/70 hover:text-white" 
+              : "hover:bg-primary/10 text-muted-foreground hover:text-primary"
+          )}
+        >
+          <Download className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+
+      {/* Loading State */}
+      {!isLoaded && (
+        <div className={cn(
+          "flex items-center justify-center py-2 text-xs",
+          isUser ? "text-white/60" : "text-muted-foreground"
+        )}>
+          Loading audio...
+        </div>
+      )}
     </div>
   );
 };
