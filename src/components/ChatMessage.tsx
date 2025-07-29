@@ -6,6 +6,8 @@ import { ArmenianIcon } from "@/components/ArmenianIcon";
 import { addToFavorites, removeFromFavorites, isFavorited } from "@/lib/favorites";
 import { useNotifications } from "@/components/NotificationSystem";
 import { AudioMessage } from "@/components/AudioMessage";
+import { FileAttachment } from "@/components/FileAttachment";
+import { FileAttachment as FileAttachmentType } from "@/lib/chatHistory";
 
 // Simple markdown parser for basic formatting
 const parseMarkdown = (text: string) => {
@@ -65,12 +67,13 @@ interface ChatMessageProps {
   messageId?: string;
   sessionId?: string;
   sessionTitle?: string;
-  type?: 'text' | 'audio';
+  type?: 'text' | 'audio' | 'file';
   audioUrl?: string;
   audioDuration?: number;
+  attachments?: FileAttachmentType[];
 }
 
-export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, sessionTitle, type = 'text', audioUrl, audioDuration }: ChatMessageProps) => {
+export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, sessionTitle, type = 'text', audioUrl, audioDuration, attachments }: ChatMessageProps) => {
   const [copied, setCopied] = useState(false);
   const [favorited, setFavorited] = useState(false);
   const notifications = useNotifications();
@@ -228,6 +231,23 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
                   duration={audioDuration}
                   isUser={isUser}
                 />
+              </div>
+            ) : type === 'file' && attachments ? (
+              <div className="space-y-2">
+                {message && message !== "📎 File attachment" && (
+                  <div className="text-sm leading-relaxed">
+                    {parseMarkdown(message)}
+                  </div>
+                )}
+                <div className="space-y-2 -m-1">
+                  {attachments.map((attachment) => (
+                    <FileAttachment
+                      key={attachment.id}
+                      attachment={attachment}
+                      isUser={isUser}
+                    />
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="text-sm leading-relaxed">
