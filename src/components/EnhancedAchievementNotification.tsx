@@ -130,12 +130,12 @@ export const EnhancedAchievementNotification = () => {
           </div>
 
           {/* Achievement content */}
-          <div className="text-center space-y-4">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <div className="text-center space-y-3 sm:space-y-4">
+            <h3 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
               {achievement.title}
             </h3>
-            
-            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+
+            <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed">
               {achievement.description}
             </p>
             
