@@ -179,15 +179,22 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
         console.warn('Speech recognition error:', event.error);
         if (mountedRef.current) {
           if (event.error === 'no-speech') {
-            // Restart listening if no speech detected
+            // Restart listening if no speech detected, but limit restarts
             setTimeout(() => {
-              if (mountedRef.current && state === 'listening') {
-                recognition.start();
+              if (mountedRef.current && state === 'listening' && !isProcessingRef.current) {
+                try {
+                  recognition.start();
+                } catch (err) {
+                  console.warn('Failed to restart recognition:', err);
+                  setError('Speech recognition failed to restart');
+                  setState('idle');
+                }
               }
             }, 1000);
           } else {
             setError(`Speech recognition error: ${event.error}`);
             setState('idle');
+            stopListening();
           }
         }
       };
@@ -286,6 +293,10 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
       if (mountedRef.current) {
         setError(error.message || 'Failed to process conversation');
         setState('idle');
+        setCurrentTranscript('');
+        setLastAIResponse('');
+        // Stop listening completely on error
+        stopListening();
       }
     } finally {
       isProcessingRef.current = false;
