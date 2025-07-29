@@ -59,19 +59,20 @@ export const EnhancedAchievementNotification = () => {
       />
       
       {/* Achievement Card */}
-      <div 
+      <div
         className={cn(
           "fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[100]",
           "transition-all duration-500 ease-out",
+          "w-full max-w-sm mx-4 sm:mx-0 sm:max-w-md",
           isVisible && !isExiting
-            ? "scale-100 opacity-100 rotate-0" 
+            ? "scale-100 opacity-100 rotate-0"
             : isExiting
             ? "scale-90 opacity-0 rotate-6"
             : "scale-75 opacity-0 -rotate-12"
         )}
       >
         <Card className={cn(
-          "relative p-8 max-w-md w-full mx-4",
+          "relative p-4 sm:p-8 w-full",
           "bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50",
           "dark:from-yellow-950/30 dark:via-orange-950/30 dark:to-red-950/30",
           "border-2 border-yellow-300 dark:border-yellow-600",
