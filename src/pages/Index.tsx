@@ -375,7 +375,8 @@ const Index = () => {
               content.push({
                 type: 'image_url' as const,
                 image_url: {
-                  url: attachment.url
+                  url: attachment.url,
+                  detail: "auto" // Let OpenAI decide the level of detail
                 }
               });
             }
