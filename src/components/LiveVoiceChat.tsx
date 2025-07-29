@@ -287,12 +287,8 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
           if (mountedRef.current) {
             setState('idle');
             setLastAIResponse('');
-            // Auto-restart listening after AI finishes speaking
-            setTimeout(() => {
-              if (mountedRef.current && show) {
-                startListening();
-              }
-            }, 500);
+            // Don't auto-restart listening to prevent AI from talking to itself
+            // User needs to manually start conversation again
           }
         });
         
