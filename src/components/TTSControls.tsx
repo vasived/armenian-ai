@@ -90,11 +90,12 @@ export const TTSControls = ({ text, isUser, autoSpeak = false, className }: TTSC
     }
   }, []);
 
-  const handleAudioError = useCallback(() => {
+  const handleAudioError = useCallback((error?: any) => {
     if (mountedRef.current) {
       setIsPlaying(false);
       setIsLoading(false);
       setAudioElement(null);
+      console.error('Audio playback error:', error);
       notifications.error(
         "Playback Error",
         "Failed to play audio. Please try again."
