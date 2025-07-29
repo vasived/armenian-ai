@@ -136,13 +136,16 @@ export const TTSControls = ({ text, isUser, autoSpeak = false, className }: TTSC
 
       // Set up event listeners
       audio.addEventListener('ended', handleAudioEnd);
-      audio.addEventListener('error', handleAudioError);
+      audio.addEventListener('error', (e) => handleAudioError(e));
+
+      // Update state before playing
+      if (mountedRef.current) {
+        setIsLoading(false);
+        setIsPlaying(true);
+      }
 
       // Play the audio
       await audio.play();
-      if (mountedRef.current) {
-        setIsPlaying(true);
-      }
 
     } catch (error: any) {
       console.error('TTS failed:', error);
