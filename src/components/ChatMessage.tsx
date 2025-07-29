@@ -91,8 +91,39 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
       return;
     }
 
+    // Fallback function using the older method
+    const fallbackCopy = (text: string) => {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        const result = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        return result;
+      } catch (err) {
+        document.body.removeChild(textArea);
+        throw err;
+      }
+    };
+
     try {
-      await navigator.clipboard.writeText(message);
+      // Try modern clipboard API first
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(message);
+      } else {
+        // Fallback to older method
+        const success = fallbackCopy(message);
+        if (!success) {
+          throw new Error('Fallback copy method failed');
+        }
+      }
+
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
       notifications.success(
@@ -107,7 +138,7 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
       console.error('Failed to copy message:', error);
       notifications.error(
         "Copy Failed",
-        "Unable to copy text to clipboard"
+        "Unable to copy text to clipboard. Please select and copy manually."
       );
     }
   };
