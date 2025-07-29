@@ -210,7 +210,7 @@ All colors MUST be HSL.
     background-size: 20px 20px;
   }
 
-  /* Custom scrollbar */
+  /* Custom scrollbar with better visibility */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -218,16 +218,18 @@ All colors MUST be HSL.
 
   ::-webkit-scrollbar-track {
     background: hsl(var(--background));
+    border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--primary) / 0.3);
+    background: hsl(var(--primary) / 0.4);
     border-radius: 4px;
     transition: background 0.2s ease;
+    border: 1px solid hsl(var(--border));
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--primary) / 0.5);
+    background: hsl(var(--primary) / 0.6);
   }
 
   /* Firefox scrollbar */
