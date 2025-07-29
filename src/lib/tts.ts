@@ -16,6 +16,12 @@ export class TTSService {
       throw new Error('OpenAI API key not configured. Please set VITE_OPENAI_API_KEY environment variable with your actual API key.');
     }
 
+    // Create OpenAI client only when needed
+    const openai = new OpenAI({
+      apiKey: apiKey,
+      dangerouslyAllowBrowser: true
+    });
+
     const { voice = 'alloy', speed = 1.0 } = options;
     
     // Create cache key based on text and options
