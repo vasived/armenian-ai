@@ -243,7 +243,7 @@ const Index = () => {
     }
   };
 
-  const handleSendMessage = async (content: string) => {
+  const handleSendMessage = async (content: string, attachments?: any[]) => {
     let currentSessionId = activeSessionId;
 
     // Create new session if none exists
@@ -259,7 +259,11 @@ const Index = () => {
       id: generateMessageId(),
       content,
       isUser: true,
-      timestamp: new Date()
+      timestamp: new Date(),
+      ...(attachments && attachments.length > 0 && {
+        type: 'file' as const,
+        attachments
+      })
     };
 
     // Get current session and build conversation history
@@ -588,6 +592,7 @@ const Index = () => {
                     type={message.type}
                     audioUrl={message.audioUrl}
                     audioDuration={message.audioDuration}
+                    attachments={message.attachments}
                   />
                 ))}
                 {isLoading && <LoadingIndicator />}
