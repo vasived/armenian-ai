@@ -160,6 +160,49 @@ const Index = () => {
     notifications.chatRenamed(oldTitle, newTitle);
   };
 
+  const handleSendVoiceMessage = async (audioBlob: Blob, duration: number) => {
+    let currentSessionId = activeSessionId;
+
+    // Create new session if none exists
+    if (!currentSessionId) {
+      const newSession = createNewChatSession();
+      setSessions(prev => [newSession, ...prev]);
+      setActiveSessionId(newSession.id);
+      currentSessionId = newSession.id;
+    }
+
+    // Create audio URL
+    const audioUrl = URL.createObjectURL(audioBlob);
+
+    // Add voice message
+    const voiceMessage: Message = {
+      id: generateMessageId(),
+      content: `Voice message (${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')})`,
+      isUser: true,
+      timestamp: new Date(),
+      type: 'audio',
+      audioUrl,
+      audioDuration: duration
+    };
+
+    // Get current session
+    const currentSession = sessions.find(s => s.id === currentSessionId);
+    const existingMessages = currentSession?.messages || [];
+
+    // Update session with voice message
+    setSessions(prev => updateChatSession(prev, currentSessionId!, {
+      messages: [...existingMessages, voiceMessage],
+      title: prev.find(s => s.id === currentSessionId)?.title === 'New Chat'
+        ? 'Voice Conversation'
+        : prev.find(s => s.id === currentSessionId)?.title
+    }));
+
+    // Track progress
+    progressManager.updateChatProgress(true, !currentSession);
+
+    setVoicePopupOpen(false);
+  };
+
   const handleSendMessage = async (content: string) => {
     let currentSessionId = activeSessionId;
 
@@ -502,6 +545,9 @@ const Index = () => {
                     messageId={message.id}
                     sessionId={activeSessionId || undefined}
                     sessionTitle={activeSession?.title || 'Untitled Chat'}
+                    type={message.type}
+                    audioUrl={message.audioUrl}
+                    audioDuration={message.audioDuration}
                   />
                 ))}
                 {isLoading && <LoadingIndicator />}
@@ -555,10 +601,11 @@ const Index = () => {
       {/* Achievement Notifications */}
       <EnhancedAchievementNotification />
 
-      {/* Voice Message Popup */}
-      <VoiceMessagePopup
+      {/* Voice Recorder */}
+      <VoiceRecorder
         show={voicePopupOpen}
         onClose={() => setVoicePopupOpen(false)}
+        onSendVoiceMessage={handleSendVoiceMessage}
       />
 
       {/* Notification System */}
