@@ -165,7 +165,7 @@ const Index = () => {
   const handleLiveVoiceConversation = async (userText: string, aiResponse: string) => {
     let currentSessionId = activeSessionId;
 
-    // Create new session if none exists
+    // Create new session if none exists, or reuse existing one
     if (!currentSessionId) {
       const newSession = createNewChatSession();
       setSessions(prev => [newSession, ...prev]);
