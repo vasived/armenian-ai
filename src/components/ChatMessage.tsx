@@ -7,6 +7,7 @@ import { addToFavorites, removeFromFavorites, isFavorited } from "@/lib/favorite
 import { useNotifications } from "@/components/NotificationSystem";
 import { AudioMessage } from "@/components/AudioMessage";
 import { FileAttachment } from "@/components/FileAttachment";
+import { TTSControls } from "@/components/TTSControls";
 import { FileAttachment as FileAttachmentType } from "@/lib/chatHistory";
 
 // Simple markdown parser for basic formatting
@@ -289,6 +290,14 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
                       favorited ? "fill-yellow-400 text-yellow-400 scale-110" : ""
                     )} />
                   </Button>
+                )}
+
+                {/* TTS Controls for AI messages */}
+                {!isUser && type !== 'audio' && (
+                  <TTSControls
+                    text={message}
+                    isUser={isUser}
+                  />
                 )}
 
                 {/* Only show copy button for text messages */}
