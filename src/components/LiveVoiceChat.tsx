@@ -286,6 +286,10 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
       if (mountedRef.current) {
         setError(error.message || 'Failed to process conversation');
         setState('idle');
+        setCurrentTranscript('');
+        setLastAIResponse('');
+        // Stop listening completely on error
+        stopListening();
       }
     } finally {
       isProcessingRef.current = false;
