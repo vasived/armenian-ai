@@ -201,6 +201,46 @@ const Index = () => {
     progressManager.updateChatProgress(true, !currentSession);
 
     setVoicePopupOpen(false);
+
+    // Generate AI response if we have a transcript
+    if (transcript && transcript.trim()) {
+      setIsLoading(true);
+
+      // Build conversation history with existing messages + new voice message
+      const conversationHistory = [...existingMessages, voiceMessage]
+        .map(msg => ({
+          role: msg.isUser ? 'user' as const : 'assistant' as const,
+          content: msg.type === 'audio' && msg.content.startsWith('Voice message')
+            ? transcript // Use transcript for AI context
+            : msg.content
+        }));
+
+      try {
+        // Get AI response
+        const aiResponseContent = await generateAIResponse(conversationHistory);
+
+        const aiResponse: Message = {
+          id: generateMessageId(),
+          content: aiResponseContent,
+          isUser: false,
+          timestamp: new Date()
+        };
+
+        // Update session with AI response
+        setSessions(prev => {
+          const currentSession = prev.find(s => s.id === currentSessionId);
+          const updatedMessages = [...(currentSession?.messages || []), aiResponse];
+
+          return updateChatSession(prev, currentSessionId!, {
+            messages: updatedMessages
+          });
+        });
+      } catch (error) {
+        console.error('Failed to generate AI response:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   const handleSendMessage = async (content: string) => {
