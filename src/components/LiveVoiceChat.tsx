@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { TTSService, TTSOptions } from "@/lib/tts";
 import { useNotifications } from "@/components/NotificationSystem";
 import { getUserPreferences } from "@/lib/userContext";
-import OpenAI from 'openai';
+import { generateAIResponse } from "@/lib/openai";
 
 interface LiveVoiceChatProps {
   show: boolean;
@@ -37,11 +37,6 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
 
   const userPrefs = getUserPreferences();
   const notifications = useNotifications();
-
-  const openai = new OpenAI({
-    apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-    dangerouslyAllowBrowser: true
-  });
 
   // Initialize component visibility
   useEffect(() => {
@@ -175,7 +170,7 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
             if (mountedRef.current && finalTranscript.trim() && !voiceActivityRef.current && state === 'listening') {
               processUserInput(finalTranscript.trim());
             }
-          }, 3000); // Process after 3 seconds of silence and no voice activity
+          }, 2000); // Process after 2 seconds of silence and no voice activity
         }
         }
       };
@@ -198,11 +193,15 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
       };
 
       recognition.onend = () => {
-        if (mountedRef.current && state === 'listening') {
-          // Restart listening automatically
+        if (mountedRef.current && state === 'listening' && !isProcessingRef.current) {
+          // Only restart listening if we're not processing and still in listening state
           setTimeout(() => {
-            if (mountedRef.current && state === 'listening') {
-              recognition.start();
+            if (mountedRef.current && state === 'listening' && !isProcessingRef.current) {
+              try {
+                recognition.start();
+              } catch (error) {
+                console.warn('Failed to restart speech recognition:', error);
+              }
             }
           }, 100);
         }
@@ -252,21 +251,8 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
       const newHistory = [...conversationHistory, { role: 'user' as const, content: userText }];
       setConversationHistory(newHistory);
 
-      // Get AI response
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-4o',
-        messages: [
-          {
-            role: 'system',
-            content: `You are HagopAI, a friendly Armenian AI assistant. Keep responses conversational and brief for voice chat (1-3 sentences max). Use the user's preferences: ${JSON.stringify(userPrefs)}`
-          },
-          ...newHistory
-        ],
-        max_tokens: 150,
-        temperature: 0.7,
-      });
-
-      const aiResponse = completion.choices[0]?.message?.content || "I'm sorry, I couldn't process that.";
+      // Get AI response using the proper function that respects language preferences
+      const aiResponse = await generateAIResponse(newHistory);
       
       if (mountedRef.current) {
         setLastAIResponse(aiResponse);
@@ -287,6 +273,7 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
           if (mountedRef.current) {
             setState('idle');
             setLastAIResponse('');
+            setCurrentTranscript('');
             // Don't auto-restart listening to prevent AI from talking to itself
             // User needs to manually start conversation again
           }
