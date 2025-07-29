@@ -155,10 +155,14 @@ export const ChatSidebar = ({
               </p>
             </div>
           ) : (
-            sessions.map(session => (
+            filteredSessions.map(session => (
               <div
-                key={`mobile-${session.id}`}
-                className="p-3 rounded-lg cursor-pointer hover:bg-accent/50 transition-all"
+                key={`simple-${session.id}`}
+                className={cn(
+                  "p-3 rounded-lg cursor-pointer transition-all",
+                  "hover:bg-accent/50",
+                  session.id === activeSessionId && "bg-accent shadow-sm ring-1 ring-primary/20"
+                )}
                 onClick={() => onSelectChat(session.id)}
               >
                 <h4 className="text-sm font-medium truncate">{session.title}</h4>
