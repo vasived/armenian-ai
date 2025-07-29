@@ -59,15 +59,23 @@ export const TTSControls = ({ text, isUser, autoSpeak = false, className }: TTSC
     }
   }, [autoSpeak, userPrefs.ttsAutoSpeak, userPrefs.ttsEnabled, isUser, text]);
 
-  // Track current audio state
+  // Track current audio state with proper cleanup
   useEffect(() => {
     const currentAudio = TTSService.getCurrentAudio();
     const isCurrentlyPlaying = TTSService.isCurrentlyPlaying();
-    setIsPlaying(currentAudio === audioElement && isCurrentlyPlaying);
+    const isMyAudio = currentAudio === audioElement;
 
-    // Clear loading if no audio is playing
-    if (!isCurrentlyPlaying && isLoading && !audioElement) {
+    setIsPlaying(isMyAudio && isCurrentlyPlaying);
+
+    // Clear loading state if audio stopped playing or switched to another audio
+    if ((!isCurrentlyPlaying || !isMyAudio) && isLoading) {
       setIsLoading(false);
+    }
+
+    // If another audio is playing, stop our audio
+    if (currentAudio && !isMyAudio && audioElement) {
+      setAudioElement(null);
+      setIsPlaying(false);
     }
   }, [audioElement, isLoading]);
 
@@ -106,12 +114,13 @@ export const TTSControls = ({ text, isUser, autoSpeak = false, className }: TTSC
   const handleSpeak = useCallback(async () => {
     if (!mountedRef.current) return;
 
-    if (isPlaying) {
+    if (isPlaying && audioElement) {
       // Stop current playback
       TTSService.stopCurrentSpeech();
       if (mountedRef.current) {
         setIsPlaying(false);
         setAudioElement(null);
+        setIsLoading(false);
       }
       return;
     }
@@ -137,6 +146,16 @@ export const TTSControls = ({ text, isUser, autoSpeak = false, className }: TTSC
       // Set up event listeners
       audio.addEventListener('ended', handleAudioEnd);
       audio.addEventListener('error', (e) => handleAudioError(e));
+      audio.addEventListener('pause', () => {
+        if (mountedRef.current) {
+          setIsPlaying(false);
+        }
+      });
+      audio.addEventListener('play', () => {
+        if (mountedRef.current) {
+          setIsPlaying(true);
+        }
+      });
 
       // Update state before playing
       if (mountedRef.current) {

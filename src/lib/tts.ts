@@ -1,10 +1,5 @@
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true
-});
-
 export interface TTSOptions {
   voice?: 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
   speed?: number; // 0.25 to 4.0
@@ -20,6 +15,12 @@ export class TTSService {
     if (!apiKey || apiKey === 'your-openai-api-key-here' || apiKey.includes('*')) {
       throw new Error('OpenAI API key not configured. Please set VITE_OPENAI_API_KEY environment variable with your actual API key.');
     }
+
+    // Create OpenAI client only when needed
+    const openai = new OpenAI({
+      apiKey: apiKey,
+      dangerouslyAllowBrowser: true
+    });
 
     const { voice = 'alloy', speed = 1.0 } = options;
     
