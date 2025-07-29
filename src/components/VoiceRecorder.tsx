@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 interface VoiceRecorderProps {
   show: boolean;
   onClose: () => void;
-  onSendVoiceMessage: (audioBlob: Blob, duration: number) => void;
+  onSendVoiceMessage: (audioBlob: Blob, duration: number, transcript?: string) => void;
 }
 
 export const VoiceRecorder = ({ show, onClose, onSendVoiceMessage }: VoiceRecorderProps) => {
@@ -21,12 +21,15 @@ export const VoiceRecorder = ({ show, onClose, onSendVoiceMessage }: VoiceRecord
   const [isPlaying, setIsPlaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [transcript, setTranscript] = useState<string>('');
+  const [isTranscribing, setIsTranscribing] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   // Check microphone permission
   useEffect(() => {
@@ -103,6 +106,52 @@ export const VoiceRecorder = ({ show, onClose, onSendVoiceMessage }: VoiceRecord
     }
   };
 
+  const startSpeechRecognition = () => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US'; // You could detect Armenian if supported
+
+      recognition.onstart = () => {
+        setIsTranscribing(true);
+      };
+
+      recognition.onresult = (event: any) => {
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          }
+        }
+        if (finalTranscript) {
+          setTranscript(prev => prev + ' ' + finalTranscript);
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.warn('Speech recognition error:', event.error);
+        setIsTranscribing(false);
+      };
+
+      recognition.onend = () => {
+        setIsTranscribing(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    }
+  };
+
+  const stopSpeechRecognition = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsTranscribing(false);
+    }
+  };
+
   const startRecording = async () => {
     const stream = await requestMicrophoneAccess();
     if (!stream) return;
@@ -111,7 +160,7 @@ export const VoiceRecorder = ({ show, onClose, onSendVoiceMessage }: VoiceRecord
       const options = {
         mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4'
       };
-      
+
       mediaRecorderRef.current = new MediaRecorder(stream, options);
       audioChunksRef.current = [];
 
@@ -122,28 +171,35 @@ export const VoiceRecorder = ({ show, onClose, onSendVoiceMessage }: VoiceRecord
       };
 
       mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { 
-          type: mediaRecorderRef.current?.mimeType || 'audio/webm' 
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: mediaRecorderRef.current?.mimeType || 'audio/webm'
         });
         setAudioBlob(audioBlob);
-        
+
         if (audioUrl) {
           URL.revokeObjectURL(audioUrl);
         }
         const url = URL.createObjectURL(audioBlob);
         setAudioUrl(url);
-        
+
         // Stop the stream
         if (streamRef.current) {
           streamRef.current.getTracks().forEach(track => track.stop());
           streamRef.current = null;
         }
+
+        // Stop speech recognition
+        stopSpeechRecognition();
       };
 
       mediaRecorderRef.current.start();
       setIsRecording(true);
       setIsPaused(false);
       setRecordingTime(0);
+      setTranscript('');
+
+      // Start speech recognition
+      startSpeechRecognition();
 
       // Start timer
       timerRef.current = setInterval(() => {
@@ -161,12 +217,14 @@ export const VoiceRecorder = ({ show, onClose, onSendVoiceMessage }: VoiceRecord
       if (isPaused) {
         mediaRecorderRef.current.resume();
         setIsPaused(false);
+        startSpeechRecognition();
         timerRef.current = setInterval(() => {
           setRecordingTime(prev => prev + 1);
         }, 1000);
       } else {
         mediaRecorderRef.current.pause();
         setIsPaused(true);
+        stopSpeechRecognition();
         if (timerRef.current) {
           clearInterval(timerRef.current);
         }
@@ -227,11 +285,13 @@ export const VoiceRecorder = ({ show, onClose, onSendVoiceMessage }: VoiceRecord
     setIsPlaying(false);
     setRecordingTime(0);
     setError(null);
+    setTranscript('');
+    stopSpeechRecognition();
   };
 
   const sendVoiceMessage = () => {
     if (audioBlob) {
-      onSendVoiceMessage(audioBlob, recordingTime);
+      onSendVoiceMessage(audioBlob, recordingTime, transcript.trim() || undefined);
       handleClose();
     }
   };
@@ -243,6 +303,7 @@ export const VoiceRecorder = ({ show, onClose, onSendVoiceMessage }: VoiceRecord
       discardRecording();
       setError(null);
       setHasPermission(null);
+      stopSpeechRecognition();
     }, 300);
   };
 
@@ -294,12 +355,17 @@ export const VoiceRecorder = ({ show, onClose, onSendVoiceMessage }: VoiceRecord
           </Button>
         </div>
 
-        {/* Timer */}
+        {/* Timer and Transcript */}
         {(isRecording || audioBlob) && (
           <div className="text-center mb-4">
             <div className="text-2xl font-mono font-bold text-gray-900 dark:text-gray-100">
               {formatTime(recordingTime)}
             </div>
+            {transcript && (
+              <div className="mt-2 p-2 bg-white/50 dark:bg-black/20 rounded-lg text-xs text-gray-600 dark:text-gray-400 max-h-16 overflow-y-auto">
+                <span className="font-medium">Transcript:</span> {transcript}
+              </div>
+            )}
           </div>
         )}
 
