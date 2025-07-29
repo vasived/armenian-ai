@@ -112,16 +112,26 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
       }
     };
 
+    let copySuccess = false;
+
     try {
       // Try modern clipboard API first
       if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(message);
-      } else {
-        // Fallback to older method
-        const success = fallbackCopy(message);
-        if (!success) {
-          throw new Error('Fallback copy method failed');
+        try {
+          await navigator.clipboard.writeText(message);
+          copySuccess = true;
+        } catch (clipboardError) {
+          // Clipboard API failed, try fallback
+          console.warn('Clipboard API failed, using fallback:', clipboardError);
+          copySuccess = fallbackCopy(message);
         }
+      } else {
+        // Use fallback method directly
+        copySuccess = fallbackCopy(message);
+      }
+
+      if (!copySuccess) {
+        throw new Error('All copy methods failed');
       }
 
       setCopied(true);
