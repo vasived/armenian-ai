@@ -180,9 +180,10 @@ All colors MUST be HSL.
   }
 
   .cultural-glow {
-    box-shadow: 0 0 0 1px hsl(355 78% 60% / 0.1),
-                0 2px 8px hsl(355 78% 60% / 0.1),
-                0 8px 32px hsl(213 94% 68% / 0.1);
+    box-shadow: 0 0 0 1px hsl(355 78% 55% / 0.15),
+                0 2px 12px hsl(355 78% 55% / 0.12),
+                0 8px 32px hsl(213 90% 65% / 0.08),
+                0 1px 3px hsl(220 16% 88% / 0.2);
   }
 
   .warm-card {
