@@ -32,6 +32,29 @@
   }
 }
 
+@keyframes sendPulse {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes messageAppear {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @keyframes pulse-glow {
   0%, 100% {
     box-shadow: 0 0 5px rgba(255, 123, 0, 0.3);
@@ -42,11 +65,19 @@
 }
 
 .chat-message-user {
-  animation: slideInFromRight 0.3s ease-out;
+  animation: slideInFromRight 0.4s ease-out;
 }
 
 .chat-message-ai {
-  animation: slideInFromLeft 0.3s ease-out;
+  animation: slideInFromLeft 0.5s ease-out;
+}
+
+.send-button-active {
+  animation: sendPulse 0.3s ease-out;
+}
+
+.message-appear {
+  animation: messageAppear 0.5s ease-out;
 }
 
 .welcome-card {
