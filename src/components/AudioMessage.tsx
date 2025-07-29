@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, Download, Mic } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Play, Pause, Download, Mic, Gauge } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AudioMessageProps {
@@ -14,6 +15,7 @@ export const AudioMessage = ({ audioUrl, duration, isUser, className }: AudioMes
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -22,6 +24,9 @@ export const AudioMessage = ({ audioUrl, duration, isUser, className }: AudioMes
 
     const handleLoadedData = () => setIsLoaded(true);
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+
+    // Set initial playback rate
+    audio.playbackRate = playbackSpeed;
     const handleEnded = () => {
       setIsPlaying(false);
       setCurrentTime(0);
@@ -46,10 +51,27 @@ export const AudioMessage = ({ audioUrl, duration, isUser, className }: AudioMes
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
+      audioRef.current.playbackRate = playbackSpeed;
       audioRef.current.play();
       setIsPlaying(true);
     }
   };
+
+  const changePlaybackSpeed = (speed: number) => {
+    setPlaybackSpeed(speed);
+    if (audioRef.current) {
+      audioRef.current.playbackRate = speed;
+    }
+  };
+
+  const speedOptions = [
+    { value: 0.5, label: '0.5×' },
+    { value: 0.75, label: '0.75×' },
+    { value: 1, label: '1×' },
+    { value: 1.25, label: '1.25×' },
+    { value: 1.5, label: '1.5×' },
+    { value: 2, label: '2×' }
+  ];
 
   const downloadAudio = () => {
     const link = document.createElement('a');
@@ -161,14 +183,58 @@ export const AudioMessage = ({ audioUrl, duration, isUser, className }: AudioMes
             )}>
               {formatTime(currentTime)}
             </span>
-            <span className={cn(
-              "text-xs font-mono",
-              isUser ? "text-white/70" : "text-muted-foreground"
-            )}>
-              {formatTime(duration)}
-            </span>
+            <div className="flex items-center gap-2">
+              {playbackSpeed !== 1 && (
+                <span className={cn(
+                  "text-xs font-medium px-1.5 py-0.5 rounded-full",
+                  isUser
+                    ? "bg-white/20 text-white/80"
+                    : "bg-primary/20 text-primary"
+                )}>
+                  {playbackSpeed}×
+                </span>
+              )}
+              <span className={cn(
+                "text-xs font-mono",
+                isUser ? "text-white/70" : "text-muted-foreground"
+              )}>
+                {formatTime(duration)}
+              </span>
+            </div>
           </div>
         </div>
+
+        {/* Speed Control */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              size="sm"
+              variant="ghost"
+              className={cn(
+                "h-8 w-8 flex-shrink-0 opacity-60 hover:opacity-100 transition-all duration-200",
+                isUser
+                  ? "hover:bg-white/20 text-white/70 hover:text-white"
+                  : "hover:bg-primary/10 text-muted-foreground hover:text-primary"
+              )}
+            >
+              <Gauge className="h-3.5 w-3.5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-20">
+            {speedOptions.map((option) => (
+              <DropdownMenuItem
+                key={option.value}
+                onClick={() => changePlaybackSpeed(option.value)}
+                className={cn(
+                  "justify-center text-sm",
+                  playbackSpeed === option.value && "bg-accent font-semibold"
+                )}
+              >
+                {option.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* Download Button */}
         <Button
@@ -177,8 +243,8 @@ export const AudioMessage = ({ audioUrl, duration, isUser, className }: AudioMes
           variant="ghost"
           className={cn(
             "h-8 w-8 flex-shrink-0 opacity-60 hover:opacity-100 transition-all duration-200",
-            isUser 
-              ? "hover:bg-white/20 text-white/70 hover:text-white" 
+            isUser
+              ? "hover:bg-white/20 text-white/70 hover:text-white"
               : "hover:bg-primary/10 text-muted-foreground hover:text-primary"
           )}
         >
