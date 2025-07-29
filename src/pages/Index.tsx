@@ -165,7 +165,7 @@ const Index = () => {
   const handleLiveVoiceConversation = async (userText: string, aiResponse: string) => {
     let currentSessionId = activeSessionId;
 
-    // Create new session if none exists
+    // Create new session if none exists, or reuse existing one
     if (!currentSessionId) {
       const newSession = createNewChatSession();
       setSessions(prev => [newSession, ...prev]);
@@ -199,7 +199,7 @@ const Index = () => {
     setSessions(prev => updateChatSession(prev, currentSessionId!, {
       messages: [...existingMessages, userMessage, aiMessage],
       title: prev.find(s => s.id === currentSessionId)?.title === 'New Chat'
-        ? 'Live Voice Chat'
+        ? generateChatTitle(userText)
         : prev.find(s => s.id === currentSessionId)?.title
     }));
 

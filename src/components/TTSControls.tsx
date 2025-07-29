@@ -62,8 +62,14 @@ export const TTSControls = ({ text, isUser, autoSpeak = false, className }: TTSC
   // Track current audio state
   useEffect(() => {
     const currentAudio = TTSService.getCurrentAudio();
-    setIsPlaying(currentAudio === audioElement && TTSService.isCurrentlyPlaying());
-  }, [audioElement]);
+    const isCurrentlyPlaying = TTSService.isCurrentlyPlaying();
+    setIsPlaying(currentAudio === audioElement && isCurrentlyPlaying);
+
+    // Clear loading if no audio is playing
+    if (!isCurrentlyPlaying && isLoading && !audioElement) {
+      setIsLoading(false);
+    }
+  }, [audioElement, isLoading]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -79,15 +85,17 @@ export const TTSControls = ({ text, isUser, autoSpeak = false, className }: TTSC
   const handleAudioEnd = useCallback(() => {
     if (mountedRef.current) {
       setIsPlaying(false);
+      setIsLoading(false);
       setAudioElement(null);
     }
   }, []);
 
-  const handleAudioError = useCallback(() => {
+  const handleAudioError = useCallback((error?: any) => {
     if (mountedRef.current) {
       setIsPlaying(false);
       setIsLoading(false);
       setAudioElement(null);
+      console.error('Audio playback error:', error);
       notifications.error(
         "Playback Error",
         "Failed to play audio. Please try again."
@@ -128,13 +136,16 @@ export const TTSControls = ({ text, isUser, autoSpeak = false, className }: TTSC
 
       // Set up event listeners
       audio.addEventListener('ended', handleAudioEnd);
-      audio.addEventListener('error', handleAudioError);
+      audio.addEventListener('error', (e) => handleAudioError(e));
+
+      // Update state before playing
+      if (mountedRef.current) {
+        setIsLoading(false);
+        setIsPlaying(true);
+      }
 
       // Play the audio
       await audio.play();
-      if (mountedRef.current) {
-        setIsPlaying(true);
-      }
 
     } catch (error: any) {
       console.error('TTS failed:', error);
