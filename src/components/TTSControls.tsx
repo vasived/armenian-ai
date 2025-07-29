@@ -114,12 +114,13 @@ export const TTSControls = ({ text, isUser, autoSpeak = false, className }: TTSC
   const handleSpeak = useCallback(async () => {
     if (!mountedRef.current) return;
 
-    if (isPlaying) {
+    if (isPlaying && audioElement) {
       // Stop current playback
       TTSService.stopCurrentSpeech();
       if (mountedRef.current) {
         setIsPlaying(false);
         setAudioElement(null);
+        setIsLoading(false);
       }
       return;
     }
