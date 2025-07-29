@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArmenianIcon } from "@/components/ArmenianIcon";
 import { addToFavorites, removeFromFavorites, isFavorited } from "@/lib/favorites";
 import { useNotifications } from "@/components/NotificationSystem";
+import { AudioMessage } from "@/components/AudioMessage";
 
 // Simple markdown parser for basic formatting
 const parseMarkdown = (text: string) => {
@@ -64,9 +65,12 @@ interface ChatMessageProps {
   messageId?: string;
   sessionId?: string;
   sessionTitle?: string;
+  type?: 'text' | 'audio';
+  audioUrl?: string;
+  audioDuration?: number;
 }
 
-export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, sessionTitle }: ChatMessageProps) => {
+export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, sessionTitle, type = 'text', audioUrl, audioDuration }: ChatMessageProps) => {
   const [copied, setCopied] = useState(false);
   const [favorited, setFavorited] = useState(false);
   const notifications = useNotifications();
@@ -165,11 +169,19 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
             ? "bg-gradient-armenian text-white"
             : "bg-card border border-border/20"
         )}>
-          {/* Message Text */}
+          {/* Message Content */}
           <div className="space-y-2">
-            <div className="text-sm leading-relaxed">
-              {parseMarkdown(message)}
-            </div>
+            {type === 'audio' && audioUrl && audioDuration ? (
+              <AudioMessage
+                audioUrl={audioUrl}
+                duration={audioDuration}
+                isUser={isUser}
+              />
+            ) : (
+              <div className="text-sm leading-relaxed">
+                {parseMarkdown(message)}
+              </div>
+            )}
 
             {/* Timestamp and Actions */}
             <div className={cn(
