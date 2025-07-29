@@ -67,21 +67,23 @@ export const UserSettings = () => {
         </DialogHeader>
 
         <Tabs defaultValue="personal" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="personal" className="gap-2">
-              <User className="h-4 w-4" />
-              Personal
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
+            <TabsTrigger value="personal" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+              <User className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Personal</span>
+              <span className="sm:hidden">Info</span>
             </TabsTrigger>
-            <TabsTrigger value="language" className="gap-2">
-              <Globe className="h-4 w-4" />
-              Language
+            <TabsTrigger value="language" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Globe className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Language</span>
+              <span className="sm:hidden">Lang</span>
             </TabsTrigger>
-            <TabsTrigger value="style" className="gap-2">
-              <MessageCircle className="h-4 w-4" />
+            <TabsTrigger value="style" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+              <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4" />
               Style
             </TabsTrigger>
-            <TabsTrigger value="voice" className="gap-2">
-              <Volume2 className="h-4 w-4" />
+            <TabsTrigger value="voice" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+              <Volume2 className="h-3 w-3 sm:h-4 sm:w-4" />
               Voice
             </TabsTrigger>
           </TabsList>
