@@ -488,35 +488,85 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
             )}
           </Button>
 
+          {/* Manual stop/interrupt button */}
+          {(state === 'speaking' || state === 'processing') && (
+            <Button
+              onClick={() => {
+                TTSService.stopCurrentSpeech();
+                stopListening();
+                setState('idle');
+                setLastAIResponse('');
+                setCurrentTranscript('');
+              }}
+              variant="outline"
+              className="w-full border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
+              size="sm"
+            >
+              <X className="h-4 w-4 mr-2" />
+              Stop & Reset
+            </Button>
+          )}
+
           {conversationHistory.length > 0 && (
             <Button
               variant="outline"
-              onClick={() => setConversationHistory([])}
+              onClick={() => {
+                setConversationHistory([]);
+                notifications.info('Conversation History Cleared', 'Starting fresh conversation');
+              }}
               className="w-full"
               size="sm"
             >
-              Clear History ({conversationHistory.length / 2} exchanges)
+              Clear History ({Math.floor(conversationHistory.length / 2)} exchanges)
             </Button>
           )}
         </div>
 
-        {/* Conversation indicator */}
-        {state === 'listening' && (
-          <div className="mt-4 flex items-center justify-center gap-2">
-            <div className="flex gap-1">
-              {[...Array(3)].map((_, i) => (
-                <div
-                  key={i}
-                  className="w-2 h-2 bg-green-500 rounded-full animate-bounce"
-                  style={{ animationDelay: `${i * 0.1}s` }}
-                />
-              ))}
-            </div>
-            <span className="text-xs text-green-600 dark:text-green-400 font-medium">
-              Listening for your voice...
-            </span>
-          </div>
-        )}
+        {/* State indicators */}
+        <div className="mt-4 flex items-center justify-center gap-2">
+          {state === 'listening' && (
+            <>
+              <div className="flex gap-1">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-2 h-2 bg-green-500 rounded-full animate-bounce"
+                    style={{ animationDelay: `${i * 0.1}s` }}
+                  />
+                ))}
+              </div>
+              <span className="text-xs text-green-600 dark:text-green-400 font-medium">
+                Listening... (speak clearly)
+              </span>
+            </>
+          )}
+
+          {state === 'processing' && (
+            <>
+              <Loader2 className="h-3 w-3 text-blue-500 animate-spin" />
+              <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                Processing your message...
+              </span>
+            </>
+          )}
+
+          {state === 'speaking' && (
+            <>
+              <div className="flex gap-1">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"
+                    style={{ animationDelay: `${i * 0.2}s` }}
+                  />
+                ))}
+              </div>
+              <span className="text-xs text-purple-600 dark:text-purple-400 font-medium">
+                AI is speaking...
+              </span>
+            </>
+          )}
+        </div>
       </Card>
     </div>
   );
