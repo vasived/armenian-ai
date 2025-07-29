@@ -160,7 +160,7 @@ const Index = () => {
     notifications.chatRenamed(oldTitle, newTitle);
   };
 
-  const handleSendVoiceMessage = async (audioBlob: Blob, duration: number) => {
+  const handleSendVoiceMessage = async (audioBlob: Blob, duration: number, transcript?: string) => {
     let currentSessionId = activeSessionId;
 
     // Create new session if none exists
@@ -177,7 +177,7 @@ const Index = () => {
     // Add voice message
     const voiceMessage: Message = {
       id: generateMessageId(),
-      content: `Voice message (${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')})`,
+      content: transcript || `Voice message (${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')})`,
       isUser: true,
       timestamp: new Date(),
       type: 'audio',
