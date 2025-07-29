@@ -77,7 +77,14 @@ interface ChatMessageProps {
 export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, sessionTitle, type = 'text', audioUrl, audioDuration, attachments }: ChatMessageProps) => {
   const [copied, setCopied] = useState(false);
   const [favorited, setFavorited] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const notifications = useNotifications();
+
+  // Animation on mount
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (messageId) {
@@ -195,8 +202,9 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
 
   return (
     <div className={cn(
-      "flex w-full group",
-      isUser ? "justify-end" : "justify-start"
+      "flex w-full group transition-all duration-500 ease-out",
+      isUser ? "justify-end" : "justify-start",
+      isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
     )}>
       <div className={cn(
         "flex gap-3 max-w-[85%]",
@@ -218,10 +226,10 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
 
         {/* Message Content */}
         <div className={cn(
-          "relative rounded-2xl px-4 py-3 shadow-lg backdrop-blur-sm",
+          "relative rounded-2xl px-4 py-3 shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl",
           isUser
-            ? "bg-gradient-armenian text-white"
-            : "bg-card border border-border/20"
+            ? "bg-gradient-armenian text-white hover:scale-[1.02]"
+            : "bg-card border border-border/20 hover:scale-[1.01]"
         )}>
           {/* Message Content */}
           <div className="space-y-2">
