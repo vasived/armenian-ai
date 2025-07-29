@@ -81,10 +81,10 @@ export const FileAttachment = ({ attachment, isUser, className }: FileAttachment
   return (
     <>
       <Card className={cn(
-        "p-3 max-w-sm",
-        isUser 
-          ? "bg-white/10 border-white/20" 
-          : "bg-muted/50 border-border/30",
+        "p-3 max-w-sm transition-all duration-300 hover:shadow-lg hover:scale-[1.02]",
+        isUser
+          ? "bg-white/10 border-white/20 hover:bg-white/15"
+          : "bg-muted/50 border-border/30 hover:bg-muted/70",
         className
       )}>
         {/* Image Preview */}
