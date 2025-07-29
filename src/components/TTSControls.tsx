@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Volume2, VolumeX, Loader2, Settings } from "lucide-react";
@@ -23,70 +23,123 @@ export const TTSControls = ({ text, isUser, autoSpeak = false, className }: TTSC
   const [speed, setSpeed] = useState<number>(userPrefs.ttsSpeed || 1.0);
   const notifications = useNotifications();
 
-  useEffect(() => {
-    // Check if this audio is currently playing
-    const currentAudio = TTSService.getCurrentAudio();
-    setIsPlaying(currentAudio === audioElement && TTSService.isCurrentlyPlaying());
+  // Refs to track state and prevent race conditions
+  const hasAutoSpokenRef = useRef(false);
+  const textRef = useRef(text);
+  const mountedRef = useRef(true);
 
-    // Auto-speak if enabled and this is an AI message
-    if (autoSpeak && userPrefs.ttsAutoSpeak && userPrefs.ttsEnabled && !isUser && text.trim()) {
-      // Small delay to ensure UI is ready
+  // Check if text has changed (new message)
+  useEffect(() => {
+    if (textRef.current !== text) {
+      textRef.current = text;
+      hasAutoSpokenRef.current = false;
+    }
+  }, [text]);
+
+  // Handle auto-speak for new AI messages only
+  useEffect(() => {
+    if (
+      autoSpeak &&
+      userPrefs.ttsAutoSpeak &&
+      userPrefs.ttsEnabled &&
+      !isUser &&
+      text.trim() &&
+      !hasAutoSpokenRef.current &&
+      mountedRef.current
+    ) {
+      hasAutoSpokenRef.current = true;
+      // Small delay to ensure UI is ready and prevent race conditions
       const timer = setTimeout(() => {
-        handleSpeak();
+        if (mountedRef.current) {
+          handleSpeak();
+        }
       }, 500);
 
       return () => clearTimeout(timer);
     }
+  }, [autoSpeak, userPrefs.ttsAutoSpeak, userPrefs.ttsEnabled, isUser, text]);
 
-    // Clean up when component unmounts
+  // Track current audio state
+  useEffect(() => {
+    const currentAudio = TTSService.getCurrentAudio();
+    setIsPlaying(currentAudio === audioElement && TTSService.isCurrentlyPlaying());
+  }, [audioElement]);
+
+  // Cleanup on unmount
+  useEffect(() => {
     return () => {
+      mountedRef.current = false;
       if (audioElement) {
         audioElement.removeEventListener('ended', handleAudioEnd);
         audioElement.removeEventListener('error', handleAudioError);
       }
     };
-  }, [audioElement, autoSpeak, text]);
+  }, [audioElement]);
 
-  const handleAudioEnd = () => {
-    setIsPlaying(false);
-    setAudioElement(null);
-  };
+  const handleAudioEnd = useCallback(() => {
+    if (mountedRef.current) {
+      setIsPlaying(false);
+      setAudioElement(null);
+    }
+  }, []);
 
-  const handleAudioError = () => {
-    setIsPlaying(false);
-    setIsLoading(false);
-    setAudioElement(null);
-    notifications.error(
-      "Playback Error",
-      "Failed to play audio. Please try again."
-    );
-  };
+  const handleAudioError = useCallback(() => {
+    if (mountedRef.current) {
+      setIsPlaying(false);
+      setIsLoading(false);
+      setAudioElement(null);
+      notifications.error(
+        "Playback Error",
+        "Failed to play audio. Please try again."
+      );
+    }
+  }, [notifications]);
 
-  const handleSpeak = async () => {
+  const handleSpeak = useCallback(async () => {
+    if (!mountedRef.current) return;
+
     if (isPlaying) {
       // Stop current playback
       TTSService.stopCurrentSpeech();
-      setIsPlaying(false);
-      setAudioElement(null);
+      if (mountedRef.current) {
+        setIsPlaying(false);
+        setAudioElement(null);
+      }
       return;
     }
 
+    // Prevent multiple simultaneous TTS calls
+    if (isLoading) return;
+
     try {
-      setIsLoading(true);
-      
+      if (mountedRef.current) {
+        setIsLoading(true);
+      }
+
       const audio = await TTSService.speak(text, { voice, speed });
+
+      if (!mountedRef.current) {
+        // Component unmounted, clean up
+        audio.pause();
+        return;
+      }
+
       setAudioElement(audio);
-      
+
       // Set up event listeners
       audio.addEventListener('ended', handleAudioEnd);
       audio.addEventListener('error', handleAudioError);
-      
+
       // Play the audio
       await audio.play();
-      setIsPlaying(true);
-      
+      if (mountedRef.current) {
+        setIsPlaying(true);
+      }
+
     } catch (error: any) {
       console.error('TTS failed:', error);
+
+      if (!mountedRef.current) return;
 
       if (error.message.includes('API key')) {
         notifications.error(
@@ -101,9 +154,11 @@ export const TTSControls = ({ text, isUser, autoSpeak = false, className }: TTSC
         );
       }
     } finally {
-      setIsLoading(false);
+      if (mountedRef.current) {
+        setIsLoading(false);
+      }
     }
-  };
+  }, [isPlaying, isLoading, text, voice, speed, handleAudioEnd, handleAudioError, notifications]);
 
   const voices = TTSService.getAvailableVoices();
   const speedOptions = [

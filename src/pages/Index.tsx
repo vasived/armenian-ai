@@ -14,6 +14,7 @@ import { ThemeCustomizer } from "@/components/ThemeCustomizer";
 import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
 import { EnhancedAchievementNotification } from "@/components/EnhancedAchievementNotification";
 import { VoiceRecorder } from "@/components/VoiceRecorder";
+import { LiveVoiceChat } from "@/components/LiveVoiceChat";
 import { progressManager } from "@/lib/progressManager";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -69,6 +70,7 @@ const Index = () => {
   const [themesOpen, setThemesOpen] = useState(false);
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const [voicePopupOpen, setVoicePopupOpen] = useState(false);
+  const [liveVoiceChatOpen, setLiveVoiceChatOpen] = useState(false);
 
   const activeSession = sessions.find(s => s.id === activeSessionId) || null;
   const messages = activeSession?.messages || [];
@@ -158,6 +160,51 @@ const Index = () => {
     const session = sessions.find(s => s.id === sessionId);
     const oldTitle = session?.title || "Chat";
     notifications.chatRenamed(oldTitle, newTitle);
+  };
+
+  const handleLiveVoiceConversation = async (userText: string, aiResponse: string) => {
+    let currentSessionId = activeSessionId;
+
+    // Create new session if none exists
+    if (!currentSessionId) {
+      const newSession = createNewChatSession();
+      setSessions(prev => [newSession, ...prev]);
+      setActiveSessionId(newSession.id);
+      currentSessionId = newSession.id;
+    }
+
+    // Get current session
+    const currentSession = sessions.find(s => s.id === currentSessionId);
+    const existingMessages = currentSession?.messages || [];
+
+    // Create user message
+    const userMessage: Message = {
+      id: generateMessageId(),
+      content: userText,
+      isUser: true,
+      timestamp: new Date(),
+      type: 'text'
+    };
+
+    // Create AI response message
+    const aiMessage: Message = {
+      id: generateMessageId(),
+      content: aiResponse,
+      isUser: false,
+      timestamp: new Date(),
+      type: 'text'
+    };
+
+    // Update session with both messages
+    setSessions(prev => updateChatSession(prev, currentSessionId!, {
+      messages: [...existingMessages, userMessage, aiMessage],
+      title: prev.find(s => s.id === currentSessionId)?.title === 'New Chat'
+        ? 'Live Voice Chat'
+        : prev.find(s => s.id === currentSessionId)?.title
+    }));
+
+    // Track progress
+    progressManager.updateChatProgress(true, !currentSession);
   };
 
   const handleSendVoiceMessage = async (audioBlob: Blob, duration: number, transcript?: string) => {
@@ -327,6 +374,10 @@ const Index = () => {
       case 'voice':
         progressManager.trackFeatureUsage('voice_messages');
         setVoicePopupOpen(true);
+        break;
+      case 'live-voice':
+        progressManager.trackFeatureUsage('live_voice_chat');
+        setLiveVoiceChatOpen(true);
         break;
       case 'favorites':
         // Open favorites dialog (handled by the FavoritesDialog trigger)
@@ -651,6 +702,13 @@ const Index = () => {
         show={voicePopupOpen}
         onClose={() => setVoicePopupOpen(false)}
         onSendVoiceMessage={handleSendVoiceMessage}
+      />
+
+      {/* Live Voice Chat */}
+      <LiveVoiceChat
+        show={liveVoiceChatOpen}
+        onClose={() => setLiveVoiceChatOpen(false)}
+        onConversation={handleLiveVoiceConversation}
       />
 
       {/* Notification System */}

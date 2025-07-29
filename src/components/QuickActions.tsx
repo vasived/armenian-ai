@@ -1,17 +1,18 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { 
-  Mic, 
-  Star, 
-  Download, 
-  Search, 
-  Calendar, 
-  BookOpen, 
+import {
+  Mic,
+  Star,
+  Download,
+  Search,
+  Calendar,
+  BookOpen,
   Palette,
   Zap,
   MessageSquare,
-  TrendingUp
+  TrendingUp,
+  Phone
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -30,6 +31,13 @@ export const QuickActions = ({ onAction, className }: QuickActionsProps) => {
       label: 'Voice Message',
       color: 'bg-blue-500 hover:bg-blue-600',
       description: 'Record a voice message'
+    },
+    {
+      id: 'live-voice',
+      icon: <Phone className="h-4 w-4" />,
+      label: 'Live Voice Chat',
+      color: 'bg-purple-500 hover:bg-purple-600',
+      description: 'Real-time voice conversation'
     },
     {
       id: 'favorites',
