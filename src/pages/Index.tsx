@@ -330,6 +330,10 @@ const Index = () => {
         progressManager.trackFeatureUsage('voice_messages');
         setVoicePopupOpen(true);
         break;
+      case 'live-voice':
+        progressManager.trackFeatureUsage('live_voice_chat');
+        setLiveVoiceChatOpen(true);
+        break;
       case 'favorites':
         // Open favorites dialog (handled by the FavoritesDialog trigger)
         break;
