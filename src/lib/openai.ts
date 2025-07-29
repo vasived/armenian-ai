@@ -27,7 +27,10 @@ const getFallbackResponse = (userMessage: string): string => {
 
 export const generateAIResponse = async (messages: Array<{role: 'user' | 'assistant', content: string}>): Promise<string> => {
   // Check if API key is available
-  if (!import.meta.env.VITE_OPENAI_API_KEY) {
+  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+  console.log('API Key available:', !!apiKey, 'Length:', apiKey?.length || 0);
+
+  if (!apiKey) {
     const userMessage = messages[messages.length - 1]?.content || '';
     return getFallbackResponse(userMessage) + "\n\n**Configuration**: OpenAI API key not found. Please set VITE_OPENAI_API_KEY environment variable.";
   }
