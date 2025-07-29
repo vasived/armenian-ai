@@ -5,6 +5,10 @@ import { Button } from "@/components/ui/button";
 import { ArmenianIcon } from "@/components/ArmenianIcon";
 import { addToFavorites, removeFromFavorites, isFavorited } from "@/lib/favorites";
 import { useNotifications } from "@/components/NotificationSystem";
+import { AudioMessage } from "@/components/AudioMessage";
+import { FileAttachment } from "@/components/FileAttachment";
+import { TTSControls } from "@/components/TTSControls";
+import { FileAttachment as FileAttachmentType } from "@/lib/chatHistory";
 
 // Simple markdown parser for basic formatting
 const parseMarkdown = (text: string) => {
@@ -64,9 +68,13 @@ interface ChatMessageProps {
   messageId?: string;
   sessionId?: string;
   sessionTitle?: string;
+  type?: 'text' | 'audio' | 'file';
+  audioUrl?: string;
+  audioDuration?: number;
+  attachments?: FileAttachmentType[];
 }
 
-export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, sessionTitle }: ChatMessageProps) => {
+export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, sessionTitle, type = 'text', audioUrl, audioDuration, attachments }: ChatMessageProps) => {
   const [copied, setCopied] = useState(false);
   const [favorited, setFavorited] = useState(false);
   const notifications = useNotifications();
@@ -78,8 +86,58 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
   }, [messageId]);
 
   const handleCopy = async () => {
+    // Don't allow copying audio messages
+    if (type === 'audio') {
+      notifications.info(
+        "Cannot Copy",
+        "Voice messages cannot be copied to clipboard"
+      );
+      return;
+    }
+
+    // Fallback function using the older method
+    const fallbackCopy = (text: string) => {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        const result = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        return result;
+      } catch (err) {
+        document.body.removeChild(textArea);
+        throw err;
+      }
+    };
+
+    let copySuccess = false;
+
     try {
-      await navigator.clipboard.writeText(message);
+      // Try modern clipboard API first
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(message);
+          copySuccess = true;
+        } catch (clipboardError) {
+          // Clipboard API failed, try fallback
+          console.warn('Clipboard API failed, using fallback:', clipboardError);
+          copySuccess = fallbackCopy(message);
+        }
+      } else {
+        // Use fallback method directly
+        copySuccess = fallbackCopy(message);
+      }
+
+      if (!copySuccess) {
+        throw new Error('All copy methods failed');
+      }
+
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
       notifications.success(
@@ -94,7 +152,7 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
       console.error('Failed to copy message:', error);
       notifications.error(
         "Copy Failed",
-        "Unable to copy text to clipboard"
+        "Unable to copy text to clipboard. Please select and copy manually."
       );
     }
   };
@@ -165,11 +223,38 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
             ? "bg-gradient-armenian text-white"
             : "bg-card border border-border/20"
         )}>
-          {/* Message Text */}
+          {/* Message Content */}
           <div className="space-y-2">
-            <div className="text-sm leading-relaxed">
-              {parseMarkdown(message)}
-            </div>
+            {type === 'audio' && audioUrl && audioDuration ? (
+              <div className="-m-1">
+                <AudioMessage
+                  audioUrl={audioUrl}
+                  duration={audioDuration}
+                  isUser={isUser}
+                />
+              </div>
+            ) : type === 'file' && attachments ? (
+              <div className="space-y-2">
+                {message && message !== "📎 File attachment" && (
+                  <div className="text-sm leading-relaxed">
+                    {parseMarkdown(message)}
+                  </div>
+                )}
+                <div className="space-y-2 -m-1">
+                  {attachments.map((attachment) => (
+                    <FileAttachment
+                      key={attachment.id}
+                      attachment={attachment}
+                      isUser={isUser}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="text-sm leading-relaxed">
+                {parseMarkdown(message)}
+              </div>
+            )}
 
             {/* Timestamp and Actions */}
             <div className={cn(
@@ -207,25 +292,37 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
                   </Button>
                 )}
 
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleCopy}
-                  className={cn(
-                    "h-7 w-7 p-0 transition-all duration-200",
-                    "opacity-0 group-hover:opacity-100 group-hover:scale-110",
-                    isUser
-                      ? "hover:bg-white/20 text-white/70 hover:text-white"
-                      : "hover:bg-accent hover:shadow-md",
-                    copied && "opacity-100 scale-105"
-                  )}
-                >
-                  {copied ? (
-                    <Check className="h-3.5 w-3.5 text-green-500" />
-                  ) : (
-                    <Copy className="h-3.5 w-3.5" />
-                  )}
-                </Button>
+                {/* TTS Controls for AI messages */}
+                {!isUser && type !== 'audio' && (
+                  <TTSControls
+                    text={message}
+                    isUser={isUser}
+                    autoSpeak={true}
+                  />
+                )}
+
+                {/* Only show copy button for text messages */}
+                {type !== 'audio' && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCopy}
+                    className={cn(
+                      "h-7 w-7 p-0 transition-all duration-200",
+                      "opacity-0 group-hover:opacity-100 group-hover:scale-110",
+                      isUser
+                        ? "hover:bg-white/20 text-white/70 hover:text-white"
+                        : "hover:bg-accent hover:shadow-md",
+                      copied && "opacity-100 scale-105"
+                    )}
+                  >
+                    {copied ? (
+                      <Check className="h-3.5 w-3.5 text-green-500" />
+                    ) : (
+                      <Copy className="h-3.5 w-3.5" />
+                    )}
+                  </Button>
+                )}
               </div>
             </div>
           </div>

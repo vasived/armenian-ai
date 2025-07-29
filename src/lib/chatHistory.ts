@@ -1,10 +1,23 @@
 import { generateSessionId } from './utils';
 
+export interface FileAttachment {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  url: string;
+  mimeType: string;
+}
+
 export interface Message {
   id: string;
   content: string;
   isUser: boolean;
   timestamp: Date;
+  type?: 'text' | 'audio' | 'file';
+  audioUrl?: string;
+  audioDuration?: number;
+  attachments?: FileAttachment[];
 }
 
 export interface ChatSession {

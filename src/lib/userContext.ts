@@ -10,6 +10,11 @@ interface UserPreferences {
   armenianLevel?: 'native' | 'learning' | 'basic' | 'advanced';
   interests?: string[];
   lastInteraction?: Date;
+  // TTS preferences
+  ttsEnabled?: boolean;
+  ttsAutoSpeak?: boolean;
+  ttsVoice?: 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
+  ttsSpeed?: number;
 }
 
 const STORAGE_KEY = 'hagopai_user_preferences';
@@ -35,7 +40,11 @@ export const getUserPreferences = (): UserPreferences => {
     armenianUsage: 'frequent',
     armenianScript: 'transliteration',
     culturalDepth: 'moderate',
-    armenianLevel: 'native'
+    armenianLevel: 'native',
+    ttsEnabled: true,
+    ttsAutoSpeak: false,
+    ttsVoice: 'alloy',
+    ttsSpeed: 1.0
   };
 };
 

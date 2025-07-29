@@ -13,7 +13,7 @@ import { LearningMode } from "@/components/LearningMode";
 import { ThemeCustomizer } from "@/components/ThemeCustomizer";
 import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
 import { EnhancedAchievementNotification } from "@/components/EnhancedAchievementNotification";
-import { VoiceMessagePopup } from "@/components/VoiceMessagePopup";
+import { VoiceRecorder } from "@/components/VoiceRecorder";
 import { progressManager } from "@/lib/progressManager";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -160,7 +160,90 @@ const Index = () => {
     notifications.chatRenamed(oldTitle, newTitle);
   };
 
-  const handleSendMessage = async (content: string) => {
+  const handleSendVoiceMessage = async (audioBlob: Blob, duration: number, transcript?: string) => {
+    let currentSessionId = activeSessionId;
+
+    // Create new session if none exists
+    if (!currentSessionId) {
+      const newSession = createNewChatSession();
+      setSessions(prev => [newSession, ...prev]);
+      setActiveSessionId(newSession.id);
+      currentSessionId = newSession.id;
+    }
+
+    // Create audio URL
+    const audioUrl = URL.createObjectURL(audioBlob);
+
+    // Add voice message
+    const voiceMessage: Message = {
+      id: generateMessageId(),
+      content: transcript || `Voice message (${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')})`,
+      isUser: true,
+      timestamp: new Date(),
+      type: 'audio',
+      audioUrl,
+      audioDuration: duration
+    };
+
+    // Get current session
+    const currentSession = sessions.find(s => s.id === currentSessionId);
+    const existingMessages = currentSession?.messages || [];
+
+    // Update session with voice message
+    setSessions(prev => updateChatSession(prev, currentSessionId!, {
+      messages: [...existingMessages, voiceMessage],
+      title: prev.find(s => s.id === currentSessionId)?.title === 'New Chat'
+        ? 'Voice Conversation'
+        : prev.find(s => s.id === currentSessionId)?.title
+    }));
+
+    // Track progress
+    progressManager.updateChatProgress(true, !currentSession);
+
+    setVoicePopupOpen(false);
+
+    // Generate AI response if we have a transcript
+    if (transcript && transcript.trim()) {
+      setIsLoading(true);
+
+      // Build conversation history with existing messages + new voice message
+      const conversationHistory = [...existingMessages, voiceMessage]
+        .map(msg => ({
+          role: msg.isUser ? 'user' as const : 'assistant' as const,
+          content: msg.type === 'audio' && msg.content.startsWith('Voice message')
+            ? transcript // Use transcript for AI context
+            : msg.content
+        }));
+
+      try {
+        // Get AI response
+        const aiResponseContent = await generateAIResponse(conversationHistory);
+
+        const aiResponse: Message = {
+          id: generateMessageId(),
+          content: aiResponseContent,
+          isUser: false,
+          timestamp: new Date()
+        };
+
+        // Update session with AI response
+        setSessions(prev => {
+          const currentSession = prev.find(s => s.id === currentSessionId);
+          const updatedMessages = [...(currentSession?.messages || []), aiResponse];
+
+          return updateChatSession(prev, currentSessionId!, {
+            messages: updatedMessages
+          });
+        });
+      } catch (error) {
+        console.error('Failed to generate AI response:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const handleSendMessage = async (content: string, attachments?: any[]) => {
     let currentSessionId = activeSessionId;
 
     // Create new session if none exists
@@ -176,7 +259,11 @@ const Index = () => {
       id: generateMessageId(),
       content,
       isUser: true,
-      timestamp: new Date()
+      timestamp: new Date(),
+      ...(attachments && attachments.length > 0 && {
+        type: 'file' as const,
+        attachments
+      })
     };
 
     // Get current session and build conversation history
@@ -502,6 +589,10 @@ const Index = () => {
                     messageId={message.id}
                     sessionId={activeSessionId || undefined}
                     sessionTitle={activeSession?.title || 'Untitled Chat'}
+                    type={message.type}
+                    audioUrl={message.audioUrl}
+                    audioDuration={message.audioDuration}
+                    attachments={message.attachments}
                   />
                 ))}
                 {isLoading && <LoadingIndicator />}
@@ -555,10 +646,11 @@ const Index = () => {
       {/* Achievement Notifications */}
       <EnhancedAchievementNotification />
 
-      {/* Voice Message Popup */}
-      <VoiceMessagePopup
+      {/* Voice Recorder */}
+      <VoiceRecorder
         show={voicePopupOpen}
         onClose={() => setVoicePopupOpen(false)}
+        onSendVoiceMessage={handleSendVoiceMessage}
       />
 
       {/* Notification System */}
