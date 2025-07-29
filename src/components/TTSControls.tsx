@@ -146,6 +146,16 @@ export const TTSControls = ({ text, isUser, autoSpeak = false, className }: TTSC
       // Set up event listeners
       audio.addEventListener('ended', handleAudioEnd);
       audio.addEventListener('error', (e) => handleAudioError(e));
+      audio.addEventListener('pause', () => {
+        if (mountedRef.current) {
+          setIsPlaying(false);
+        }
+      });
+      audio.addEventListener('play', () => {
+        if (mountedRef.current) {
+          setIsPlaying(true);
+        }
+      });
 
       // Update state before playing
       if (mountedRef.current) {
