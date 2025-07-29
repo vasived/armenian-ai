@@ -1,17 +1,18 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { 
-  Mic, 
-  Star, 
-  Download, 
-  Search, 
-  Calendar, 
-  BookOpen, 
+import {
+  Mic,
+  Star,
+  Download,
+  Search,
+  Calendar,
+  BookOpen,
   Palette,
   Zap,
   MessageSquare,
-  TrendingUp
+  TrendingUp,
+  Phone
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
