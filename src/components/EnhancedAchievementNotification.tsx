@@ -106,10 +106,10 @@ export const EnhancedAchievementNotification = () => {
           </Button>
 
           {/* Header with trophy */}
-          <div className="text-center mb-6">
-            <div className="relative mx-auto w-20 h-20 mb-4">
+          <div className="text-center mb-4 sm:mb-6">
+            <div className="relative mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-3 sm:mb-4">
               <div className={cn(
-                "w-20 h-20 rounded-full flex items-center justify-center text-white text-3xl",
+                "w-16 sm:w-20 h-16 sm:h-20 rounded-full flex items-center justify-center text-white text-2xl sm:text-3xl",
                 "bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500",
                 "shadow-lg shadow-yellow-500/50",
                 "animate-bounce"
@@ -117,15 +117,15 @@ export const EnhancedAchievementNotification = () => {
                 {achievement.icon}
               </div>
               {/* Glow effect */}
-              <div className="absolute inset-0 w-20 h-20 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 animate-ping opacity-20" />
+              <div className="absolute inset-0 w-16 sm:w-20 h-16 sm:h-20 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 animate-ping opacity-20" />
             </div>
-            
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Trophy className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
-              <span className="text-lg font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
+
+            <div className="flex items-center justify-center gap-1 sm:gap-2 mb-2">
+              <Trophy className="h-4 sm:h-5 w-4 sm:w-5 text-yellow-600 dark:text-yellow-400" />
+              <span className="text-base sm:text-lg font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
                 Achievement Unlocked!
               </span>
-              <Trophy className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+              <Trophy className="h-4 sm:h-5 w-4 sm:w-5 text-yellow-600 dark:text-yellow-400" />
             </div>
           </div>
 
