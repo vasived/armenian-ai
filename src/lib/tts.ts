@@ -15,9 +15,10 @@ export class TTSService {
   private static currentAudio: HTMLAudioElement | null = null;
 
   static async generateSpeech(text: string, options: TTSOptions = {}): Promise<string> {
-    // Check if API key is available
-    if (!import.meta.env.VITE_OPENAI_API_KEY) {
-      throw new Error('OpenAI API key not configured');
+    // Check if API key is available and valid
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    if (!apiKey || apiKey === 'your-openai-api-key-here' || apiKey.includes('*')) {
+      throw new Error('OpenAI API key not configured. Please set VITE_OPENAI_API_KEY environment variable with your actual API key.');
     }
 
     const { voice = 'alloy', speed = 1.0 } = options;
@@ -57,7 +58,7 @@ export class TTSService {
       }
       
       if (error?.status === 401) {
-        throw new Error('Invalid API key. Please check your OpenAI configuration.');
+        throw new Error('Invalid OpenAI API key. Please check your API key at https://platform.openai.com/account/api-keys and update your VITE_OPENAI_API_KEY environment variable.');
       }
       
       throw new Error('Failed to generate speech. Please try again.');
