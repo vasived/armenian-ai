@@ -181,11 +181,13 @@ export const ChatMessage = ({ message, isUser, timestamp, messageId, sessionId, 
           {/* Message Content */}
           <div className="space-y-2">
             {type === 'audio' && audioUrl && audioDuration ? (
-              <AudioMessage
-                audioUrl={audioUrl}
-                duration={audioDuration}
-                isUser={isUser}
-              />
+              <div className="-m-1">
+                <AudioMessage
+                  audioUrl={audioUrl}
+                  duration={audioDuration}
+                  isUser={isUser}
+                />
+              </div>
             ) : (
               <div className="text-sm leading-relaxed">
                 {parseMarkdown(message)}
