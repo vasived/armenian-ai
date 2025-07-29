@@ -242,6 +242,26 @@ export const UserSettings = () => {
 
           <TabsContent value="voice" className="space-y-4">
             <div className="space-y-4">
+              {(!import.meta.env.VITE_OPENAI_API_KEY ||
+                import.meta.env.VITE_OPENAI_API_KEY === 'your-openai-api-key-here' ||
+                import.meta.env.VITE_OPENAI_API_KEY.includes('*')) && (
+                <div className="p-4 bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <Settings className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-yellow-800 dark:text-yellow-200 mb-2">OpenAI API Key Required</h4>
+                      <div className="text-sm text-yellow-700 dark:text-yellow-300 space-y-2">
+                        <p>To use text-to-speech features, you need to configure your OpenAI API key:</p>
+                        <ol className="list-decimal list-inside space-y-1 ml-2">
+                          <li>Get your API key from <a href="https://platform.openai.com/account/api-keys" target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">OpenAI Platform</a></li>
+                          <li>Set the environment variable: <code className="px-1 py-0.5 bg-yellow-100 dark:bg-yellow-900 rounded text-xs font-mono">VITE_OPENAI_API_KEY=your_actual_api_key</code></li>
+                          <li>Restart your development server</li>
+                        </ol>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="flex items-center justify-between">
                 <div>
                   <Label htmlFor="tts-enabled">Enable Text-to-Speech</Label>
@@ -312,7 +332,7 @@ export const UserSettings = () => {
 
                   <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
                     <Volume2 className="h-4 w-4 inline mr-2" />
-                    Voice features are powered by OpenAI's advanced text-to-speech technology. Usage may count towards your OpenAI API quota.
+                    Voice features are powered by OpenAI's advanced text-to-speech technology. Usage costs approximately $15 per 1M characters (~$5-20/month for typical usage).
                   </div>
                 </>
               )}
