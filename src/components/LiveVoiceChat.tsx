@@ -224,6 +224,12 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
       clearTimeout(silenceTimerRef.current);
       silenceTimerRef.current = null;
     }
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+      analyserRef.current = null;
+    }
+    voiceActivityRef.current = false;
     if (mountedRef.current) {
       setState('idle');
       setCurrentTranscript('');
