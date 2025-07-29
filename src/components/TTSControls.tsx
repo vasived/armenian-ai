@@ -87,10 +87,19 @@ export const TTSControls = ({ text, isUser, autoSpeak = false, className }: TTSC
       
     } catch (error: any) {
       console.error('TTS failed:', error);
-      notifications.error(
-        "Speech Generation Failed",
-        error.message || "Unable to generate speech. Please try again."
-      );
+
+      if (error.message.includes('API key')) {
+        notifications.error(
+          "OpenAI API Key Required",
+          "Text-to-speech requires a valid OpenAI API key. Please configure VITE_OPENAI_API_KEY in your environment variables.",
+          { duration: 8000 }
+        );
+      } else {
+        notifications.error(
+          "Speech Generation Failed",
+          error.message || "Unable to generate speech. Please try again."
+        );
+      }
     } finally {
       setIsLoading(false);
     }
