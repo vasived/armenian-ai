@@ -33,6 +33,13 @@ export const QuickActions = ({ onAction, className }: QuickActionsProps) => {
       description: 'Record a voice message'
     },
     {
+      id: 'live-voice',
+      icon: <Phone className="h-4 w-4" />,
+      label: 'Live Voice Chat',
+      color: 'bg-purple-500 hover:bg-purple-600',
+      description: 'Real-time voice conversation'
+    },
+    {
       id: 'favorites',
       icon: <Star className="h-4 w-4" />,
       label: 'Favorites',
