@@ -13,14 +13,21 @@ interface ChatInputProps {
 export const ChatInput = ({ onSend, isLoading }: ChatInputProps) => {
   const [message, setMessage] = useState("");
   const [attachedFiles, setAttachedFiles] = useState<FileAttachment[]>([]);
+  const [isSending, setIsSending] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if ((message.trim() || attachedFiles.length > 0) && !isLoading) {
-      onSend(message.trim() || "📎 File attachment", attachedFiles.length > 0 ? attachedFiles : undefined);
-      setMessage("");
-      setAttachedFiles([]);
+      setIsSending(true);
+
+      // Small delay for visual feedback
+      setTimeout(() => {
+        onSend(message.trim() || "📎 File attachment", attachedFiles.length > 0 ? attachedFiles : undefined);
+        setMessage("");
+        setAttachedFiles([]);
+        setIsSending(false);
+      }, 150);
     }
   };
 
@@ -102,7 +109,10 @@ export const ChatInput = ({ onSend, isLoading }: ChatInputProps) => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="relative">
+      <form onSubmit={handleSubmit} className={cn(
+        "relative transition-all duration-300",
+        isSending && "scale-[0.98] opacity-80"
+      )}>
         <div className="relative bg-card rounded-2xl border border-border/20 shadow-lg">
           <Textarea
             value={message}
@@ -147,16 +157,20 @@ export const ChatInput = ({ onSend, isLoading }: ChatInputProps) => {
 
             <Button
               type="submit"
-              disabled={(!message.trim() && attachedFiles.length === 0) || isLoading}
+              disabled={(!message.trim() && attachedFiles.length === 0) || isLoading || isSending}
               size="sm"
               className={cn(
-                "h-7 w-7 sm:h-8 sm:w-8 p-0 rounded-full transition-all duration-200",
-                (message.trim() || attachedFiles.length > 0) && !isLoading
-                  ? "bg-gradient-armenian hover:bg-gradient-armenian/90 text-white shadow-lg scale-100"
-                  : "bg-muted text-muted-foreground scale-90"
+                "h-7 w-7 sm:h-8 sm:w-8 p-0 rounded-full transition-all duration-300",
+                (message.trim() || attachedFiles.length > 0) && !isLoading && !isSending
+                  ? "bg-gradient-armenian hover:bg-gradient-armenian/90 text-white shadow-lg scale-100 hover:scale-110 active:scale-95"
+                  : "bg-muted text-muted-foreground scale-90",
+                isSending && "animate-pulse scale-110"
               )}
             >
-              <Send className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <Send className={cn(
+                "h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-200",
+                isSending && "rotate-12 scale-110"
+              )} />
             </Button>
           </div>
         </div>

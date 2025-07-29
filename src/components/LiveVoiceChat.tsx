@@ -159,19 +159,19 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
         if (mountedRef.current) {
           setCurrentTranscript(finalTranscript + interimTranscript);
           
-          if (finalTranscript.trim()) {
-          // Reset silence timer on final transcript
-          if (silenceTimerRef.current) {
-            clearTimeout(silenceTimerRef.current);
-          }
-
-          // Set timer to process after silence (longer delay for better accuracy)
-          silenceTimerRef.current = setTimeout(() => {
-            if (mountedRef.current && finalTranscript.trim() && !voiceActivityRef.current && state === 'listening') {
-              processUserInput(finalTranscript.trim());
+          if (finalTranscript.trim().length > 10) { // Only process if meaningful content
+            // Reset silence timer on final transcript
+            if (silenceTimerRef.current) {
+              clearTimeout(silenceTimerRef.current);
             }
-          }, 2000); // Process after 2 seconds of silence and no voice activity
-        }
+
+            // Set timer to process after silence (shorter delay for better UX)
+            silenceTimerRef.current = setTimeout(() => {
+              if (mountedRef.current && finalTranscript.trim() && state === 'listening') {
+                processUserInput(finalTranscript.trim());
+              }
+            }, 1500); // Process after 1.5 seconds of silence
+          }
         }
       };
 
@@ -202,15 +202,19 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
       recognition.onend = () => {
         if (mountedRef.current && state === 'listening' && !isProcessingRef.current) {
           // Only restart listening if we're not processing and still in listening state
+          // Add a slight delay to prevent rapid restarts
           setTimeout(() => {
             if (mountedRef.current && state === 'listening' && !isProcessingRef.current) {
               try {
                 recognition.start();
               } catch (error) {
                 console.warn('Failed to restart speech recognition:', error);
+                // If restart fails too many times, stop listening
+                setError('Speech recognition failed. Please restart manually.');
+                setState('idle');
               }
             }
-          }, 100);
+          }, 200);
         }
       };
 
@@ -270,22 +274,26 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
 
         // Speak AI response
         setState('speaking');
-        
-        const audio = await TTSService.speak(aiResponse, { 
-          voice: userPrefs.ttsVoice || 'alloy', 
-          speed: userPrefs.ttsSpeed || 1.0 
+
+        const audio = await TTSService.speak(aiResponse, {
+          voice: userPrefs.ttsVoice || 'alloy',
+          speed: userPrefs.ttsSpeed || 1.0
         });
-        
+
         audio.addEventListener('ended', () => {
           if (mountedRef.current) {
             setState('idle');
             setLastAIResponse('');
             setCurrentTranscript('');
-            // Don't auto-restart listening to prevent AI from talking to itself
-            // User needs to manually start conversation again
+            // Auto-restart listening for seamless conversation
+            setTimeout(() => {
+              if (mountedRef.current && state !== 'idle') {
+                startListening();
+              }
+            }, 500); // Small delay before listening again
           }
         });
-        
+
         await audio.play();
       }
     } catch (error: any) {
@@ -324,21 +332,10 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
 
       // Calculate average volume
       const average = dataArray.reduce((a, b) => a + b) / bufferLength;
-      const threshold = 20; // Adjust this value to fine-tune sensitivity
+      const threshold = 25; // Slightly higher threshold for better detection
 
       const hasVoiceActivity = average > threshold;
-
-      if (hasVoiceActivity !== voiceActivityRef.current) {
-        voiceActivityRef.current = hasVoiceActivity;
-
-        if (hasVoiceActivity && state === 'listening') {
-          // Reset silence timer when voice activity is detected
-          if (silenceTimerRef.current) {
-            clearTimeout(silenceTimerRef.current);
-            silenceTimerRef.current = null;
-          }
-        }
-      }
+      voiceActivityRef.current = hasVoiceActivity;
 
       if (state === 'listening') {
         requestAnimationFrame(checkActivity);
@@ -480,7 +477,7 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
               </>
             ) : state === 'speaking' ? (
               <>
-                <VolumeX className="h-4 w-4 mr-2" />
+                <Volume2 className="h-4 w-4 mr-2" />
                 AI Speaking...
               </>
             ) : (
@@ -491,35 +488,85 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
             )}
           </Button>
 
+          {/* Manual stop/interrupt button */}
+          {(state === 'speaking' || state === 'processing') && (
+            <Button
+              onClick={() => {
+                TTSService.stopCurrentSpeech();
+                stopListening();
+                setState('idle');
+                setLastAIResponse('');
+                setCurrentTranscript('');
+              }}
+              variant="outline"
+              className="w-full border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
+              size="sm"
+            >
+              <X className="h-4 w-4 mr-2" />
+              Stop & Reset
+            </Button>
+          )}
+
           {conversationHistory.length > 0 && (
             <Button
               variant="outline"
-              onClick={() => setConversationHistory([])}
+              onClick={() => {
+                setConversationHistory([]);
+                notifications.info('Conversation History Cleared', 'Starting fresh conversation');
+              }}
               className="w-full"
               size="sm"
             >
-              Clear History ({conversationHistory.length / 2} exchanges)
+              Clear History ({Math.floor(conversationHistory.length / 2)} exchanges)
             </Button>
           )}
         </div>
 
-        {/* Conversation indicator */}
-        {state === 'listening' && (
-          <div className="mt-4 flex items-center justify-center gap-2">
-            <div className="flex gap-1">
-              {[...Array(3)].map((_, i) => (
-                <div
-                  key={i}
-                  className="w-2 h-2 bg-green-500 rounded-full animate-bounce"
-                  style={{ animationDelay: `${i * 0.1}s` }}
-                />
-              ))}
-            </div>
-            <span className="text-xs text-green-600 dark:text-green-400 font-medium">
-              Listening for your voice...
-            </span>
-          </div>
-        )}
+        {/* State indicators */}
+        <div className="mt-4 flex items-center justify-center gap-2">
+          {state === 'listening' && (
+            <>
+              <div className="flex gap-1">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-2 h-2 bg-green-500 rounded-full animate-bounce"
+                    style={{ animationDelay: `${i * 0.1}s` }}
+                  />
+                ))}
+              </div>
+              <span className="text-xs text-green-600 dark:text-green-400 font-medium">
+                Listening... (speak clearly)
+              </span>
+            </>
+          )}
+
+          {state === 'processing' && (
+            <>
+              <Loader2 className="h-3 w-3 text-blue-500 animate-spin" />
+              <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                Processing your message...
+              </span>
+            </>
+          )}
+
+          {state === 'speaking' && (
+            <>
+              <div className="flex gap-1">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"
+                    style={{ animationDelay: `${i * 0.2}s` }}
+                  />
+                ))}
+              </div>
+              <span className="text-xs text-purple-600 dark:text-purple-400 font-medium">
+                AI is speaking...
+              </span>
+            </>
+          )}
+        </div>
       </Card>
     </div>
   );

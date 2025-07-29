@@ -25,7 +25,7 @@ const getFallbackResponse = (userMessage: string): string => {
   return "Parev! I'm currently offline due to API quota limits. I'm your Armenian AI assistant here to help with culture, family, language, business, tech, and everything in between. Please check the API billing and I'll be back to help you soon!";
 };
 
-export const generateAIResponse = async (messages: Array<{role: 'user' | 'assistant', content: string}>): Promise<string> => {
+export const generateAIResponse = async (messages: Array<{role: 'user' | 'assistant', content: string | Array<{type: 'text' | 'image_url', text?: string, image_url?: {url: string}}> }>): Promise<string> => {
   // Check if API key is available
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
   console.log('API Key available:', !!apiKey, 'Length:', apiKey?.length || 0);
@@ -43,6 +43,13 @@ export const generateAIResponse = async (messages: Array<{role: 'user' | 'assist
     const systemPrompt = {
       role: 'system' as const,
       content: `You are HagopAI, an intelligent Armenian AI assistant created specifically for the Armenian community worldwide. Your users are primarily Armenian or have Armenian heritage, so you should assume cultural familiarity and connection.
+
+VISION CAPABILITIES:
+- You can see and analyze images, documents, screenshots, and visual content shared by users
+- When users share images, describe what you see and provide relevant cultural context if applicable
+- For documents, read and analyze the content to provide helpful insights
+- For photos of Armenian cultural items, food, locations, or artifacts, provide detailed cultural information
+- Always acknowledge when you can see images and describe what's visible to confirm understanding
 
 LANGUAGE REQUIREMENTS - SIMPLE WESTERN ARMENIAN ONLY:
 - Use WESTERN Armenian transliteration in English letters exclusively
@@ -102,10 +109,16 @@ CRITICAL LANGUAGE RULES - ABSOLUTELY MANDATORY:
 Remember: You're a comprehensive Armenian cultural companion, helping Armenians with all aspects of life while keeping them connected to their rich heritage. ALWAYS respect their exact language preferences.`
     };
 
+    // Check if any message contains images to determine model
+    const hasImages = messages.some(msg =>
+      Array.isArray(msg.content) &&
+      msg.content.some(item => item.type === 'image_url')
+    );
+
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: hasImages ? 'gpt-4o' : 'gpt-4o-mini',
       messages: [systemPrompt, ...messages],
-      max_tokens: 1000,
+      max_tokens: hasImages ? 1500 : 1000,
       temperature: 0.7,
     });
 

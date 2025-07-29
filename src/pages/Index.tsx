@@ -255,12 +255,49 @@ const Index = () => {
 
       // Build conversation history with existing messages + new voice message
       const conversationHistory = [...existingMessages, voiceMessage]
-        .map(msg => ({
-          role: msg.isUser ? 'user' as const : 'assistant' as const,
-          content: msg.type === 'audio' && msg.content.startsWith('Voice message')
-            ? transcript // Use transcript for AI context
-            : msg.content
-        }));
+        .map(msg => {
+          if (msg.isUser && msg.attachments && msg.attachments.length > 0) {
+            // Format message with attachments for vision model
+            const content = [];
+
+            // Add text content if present
+            const textContent = msg.type === 'audio' && msg.content.startsWith('Voice message')
+              ? transcript
+              : msg.content;
+
+            if (textContent && textContent !== '📎 File attachment') {
+              content.push({
+                type: 'text' as const,
+                text: textContent
+              });
+            }
+
+            // Add image attachments
+            msg.attachments.forEach(attachment => {
+              if (attachment.mimeType.startsWith('image/')) {
+                content.push({
+                  type: 'image_url' as const,
+                  image_url: {
+                    url: attachment.url,
+                    detail: "auto" // Let OpenAI decide the level of detail
+                  }
+                });
+              }
+            });
+
+            return {
+              role: msg.isUser ? 'user' as const : 'assistant' as const,
+              content
+            };
+          }
+
+          return {
+            role: msg.isUser ? 'user' as const : 'assistant' as const,
+            content: msg.type === 'audio' && msg.content.startsWith('Voice message')
+              ? transcript // Use transcript for AI context
+              : msg.content
+          };
+        });
 
       try {
         // Get AI response
@@ -319,10 +356,51 @@ const Index = () => {
 
     // Build conversation history with existing messages + new user message
     const conversationHistory = [...existingMessages, userMessage]
-      .map(msg => ({
-        role: msg.isUser ? 'user' as const : 'assistant' as const,
-        content: msg.content
-      }));
+      .map(msg => {
+        if (msg.isUser && msg.attachments && msg.attachments.length > 0) {
+          // Format message with attachments for vision model
+          const content = [];
+
+          // Add text content if present
+          if (msg.content && msg.content !== '📎 File attachment') {
+            content.push({
+              type: 'text' as const,
+              text: msg.content
+            });
+          }
+
+          // Add image attachments
+          msg.attachments.forEach(attachment => {
+            if (attachment.mimeType.startsWith('image/')) {
+              content.push({
+                type: 'image_url' as const,
+                image_url: {
+                  url: attachment.url,
+                  detail: "auto" // Let OpenAI decide the level of detail
+                }
+              });
+            }
+          });
+
+          // If no text and only non-image files, add descriptive text
+          if (content.length === 0) {
+            content.push({
+              type: 'text' as const,
+              text: `I've uploaded ${msg.attachments.length} file(s): ${msg.attachments.map(a => a.name).join(', ')}. Please help me with these files.`
+            });
+          }
+
+          return {
+            role: msg.isUser ? 'user' as const : 'assistant' as const,
+            content
+          };
+        }
+
+        return {
+          role: msg.isUser ? 'user' as const : 'assistant' as const,
+          content: msg.content
+        };
+      });
 
     // Update session with user message and title
     setSessions(prev => updateChatSession(prev, currentSessionId!, {
