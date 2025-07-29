@@ -299,8 +299,8 @@ export const UserSettings = () => {
                       </SelectTrigger>
                       <SelectContent>
                         {TTSService.getAvailableVoices().map((voice) => (
-                          <SelectItem key={voice.value} value={voice.value}>
-                            <div>
+                          <SelectItem key={voice.value} value={voice.value} className="py-3">
+                            <div className="flex flex-col gap-1">
                               <div className="font-medium">{voice.label}</div>
                               <div className="text-xs text-muted-foreground">{voice.description}</div>
                             </div>
