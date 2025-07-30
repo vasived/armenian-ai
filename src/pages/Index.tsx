@@ -278,12 +278,37 @@ const Index = () => {
                 content.push({
                   type: 'image_url' as const,
                   image_url: {
-                    url: attachment.url,
-                    detail: "auto" // Let OpenAI decide the level of detail
+                    url: attachment.url
                   }
                 });
               }
             });
+
+            // Add information about non-image attachments
+            const nonImageAttachments = msg.attachments.filter(a => !a.mimeType.startsWith('image/'));
+            if (nonImageAttachments.length > 0) {
+              const fileList = nonImageAttachments.map(a => `${a.name} (${a.mimeType})`).join(', ');
+              content.push({
+                type: 'text' as const,
+                text: `I also have these files: ${fileList}. Please acknowledge you can see them.`
+              });
+            }
+
+            // Ensure we have content
+            if (content.length === 0) {
+              const attachmentDescriptions = msg.attachments.map(a => {
+                if (a.mimeType.startsWith('image/')) {
+                  return `image: ${a.name}`;
+                } else {
+                  return `file: ${a.name} (${a.mimeType})`;
+                }
+              }).join(', ');
+
+              content.push({
+                type: 'text' as const,
+                text: `I've attached: ${attachmentDescriptions}. Please help me with these attachments.`
+              });
+            }
 
             return {
               role: msg.isUser ? 'user' as const : 'assistant' as const,
@@ -375,18 +400,35 @@ const Index = () => {
               content.push({
                 type: 'image_url' as const,
                 image_url: {
-                  url: attachment.url,
-                  detail: "auto" // Let OpenAI decide the level of detail
+                  url: attachment.url
                 }
               });
             }
           });
 
-          // If no text and only non-image files, add descriptive text
-          if (content.length === 0) {
+          // Add information about non-image attachments
+          const nonImageAttachments = msg.attachments.filter(a => !a.mimeType.startsWith('image/'));
+          if (nonImageAttachments.length > 0) {
+            const fileList = nonImageAttachments.map(a => `${a.name} (${a.mimeType})`).join(', ');
             content.push({
               type: 'text' as const,
-              text: `I've uploaded ${msg.attachments.length} file(s): ${msg.attachments.map(a => a.name).join(', ')}. Please help me with these files.`
+              text: `I also have these files: ${fileList}. Please acknowledge you can see them and help me with any questions.`
+            });
+          }
+
+          // If no content was added, ensure we describe the attachments
+          if (content.length === 0) {
+            const attachmentDescriptions = msg.attachments.map(a => {
+              if (a.mimeType.startsWith('image/')) {
+                return `image: ${a.name}`;
+              } else {
+                return `file: ${a.name} (${a.mimeType})`;
+              }
+            }).join(', ');
+
+            content.push({
+              type: 'text' as const,
+              text: `I've attached: ${attachmentDescriptions}. Please help me with these attachments.`
             });
           }
 
