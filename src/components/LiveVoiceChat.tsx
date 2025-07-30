@@ -186,13 +186,26 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
                   recognition.start();
                 } catch (err) {
                   console.warn('Failed to restart recognition:', err);
-                  setError('Speech recognition failed to restart');
+                  setError('Speech recognition failed to restart. Please try again.');
                   setState('idle');
                 }
               }
             }, 1000);
+          } else if (event.error === 'not-allowed' || event.error === 'permission-denied') {
+            setError('Microphone permission denied. Please allow microphone access and refresh the page.');
+            setState('idle');
+            stopListening();
+          } else if (event.error === 'network') {
+            setError('Network error. Please check your internet connection.');
+            setState('idle');
+            stopListening();
+          } else if (event.error === 'aborted') {
+            // Normal stop, don't show error
+            if (state !== 'idle') {
+              setState('idle');
+            }
           } else {
-            setError(`Speech recognition error: ${event.error}`);
+            setError(`Voice recognition error: ${event.error}. Please try restarting.`);
             setState('idle');
             stopListening();
           }
@@ -318,12 +331,25 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
     } catch (error: any) {
       console.error('Failed to process conversation:', error);
       if (mountedRef.current) {
-        setError(error.message || 'Failed to process conversation');
+        let errorMessage = 'Failed to process conversation';
+
+        if (error.message?.includes('quota') || error.message?.includes('limit')) {
+          errorMessage = 'AI quota reached. Please check your API settings.';
+        } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+          errorMessage = 'Network error. Please check your connection.';
+        } else if (error.message?.includes('API key')) {
+          errorMessage = 'API key issue. Please check your OpenAI configuration.';
+        }
+
+        setError(errorMessage);
         setState('idle');
         setCurrentTranscript('');
         setLastAIResponse('');
         // Stop listening completely on error
         stopListening();
+
+        // Show notification for better user awareness
+        notifications.error('Voice Chat Error', errorMessage);
       }
     } finally {
       isProcessingRef.current = false;
@@ -469,9 +495,17 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
         {/* Permission Check */}
         {hasPermission === false && !error && (
           <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-            <div className="text-yellow-700 dark:text-yellow-400 text-sm">
+            <div className="text-yellow-700 dark:text-yellow-400 text-sm mb-2">
               Microphone access is required for live voice chat.
             </div>
+            <Button
+              onClick={requestMicrophoneAccess}
+              size="sm"
+              variant="outline"
+              className="w-full border-yellow-300 text-yellow-700 hover:bg-yellow-100 dark:border-yellow-700 dark:text-yellow-300 dark:hover:bg-yellow-900"
+            >
+              Grant Microphone Access
+            </Button>
           </div>
         )}
 
