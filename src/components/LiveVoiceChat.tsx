@@ -200,11 +200,12 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
       };
 
       recognition.onend = () => {
-        if (mountedRef.current && state === 'listening' && !isProcessingRef.current) {
-          // Only restart listening if we're not processing and still in listening state
+        // Only restart if we're actively listening and not manually stopped
+        if (mountedRef.current && state === 'listening' && !isProcessingRef.current && recognitionRef.current === recognition) {
           // Add a slight delay to prevent rapid restarts
           setTimeout(() => {
-            if (mountedRef.current && state === 'listening' && !isProcessingRef.current) {
+            // Double-check that we still want to be listening
+            if (mountedRef.current && state === 'listening' && !isProcessingRef.current && recognitionRef.current === recognition) {
               try {
                 recognition.start();
               } catch (error) {
@@ -226,23 +227,41 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
   }, [state]);
 
   const stopListening = useCallback(() => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      recognitionRef.current = null;
+    // Clear recognition first to prevent restarts
+    const currentRecognition = recognitionRef.current;
+    recognitionRef.current = null;
+
+    if (currentRecognition) {
+      try {
+        currentRecognition.stop();
+      } catch (error) {
+        console.warn('Error stopping recognition:', error);
+      }
     }
+
     if (silenceTimerRef.current) {
       clearTimeout(silenceTimerRef.current);
       silenceTimerRef.current = null;
     }
+
     if (audioContextRef.current) {
-      audioContextRef.current.close();
+      try {
+        audioContextRef.current.close();
+      } catch (error) {
+        console.warn('Error closing audio context:', error);
+      }
       audioContextRef.current = null;
       analyserRef.current = null;
     }
+
     voiceActivityRef.current = false;
+    isProcessingRef.current = false;
+
     if (mountedRef.current) {
       setState('idle');
       setCurrentTranscript('');
+      setLastAIResponse('');
+      setError(null);
     }
   }, []);
 
@@ -287,7 +306,7 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
             setCurrentTranscript('');
             // Auto-restart listening for seamless conversation
             setTimeout(() => {
-              if (mountedRef.current && state !== 'idle') {
+              if (mountedRef.current && state !== 'idle' && recognitionRef.current === null) {
                 startListening();
               }
             }, 500); // Small delay before listening again
@@ -315,7 +334,11 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
     if (state === 'idle') {
       startListening();
     } else {
+      // Force stop all speech and listening
+      TTSService.stopCurrentSpeech();
       stopListening();
+      // Reset processing flag to ensure clean stop
+      isProcessingRef.current = false;
     }
   }, [state, startListening, stopListening]);
 
@@ -494,9 +517,7 @@ export const LiveVoiceChat = ({ show, onClose, onConversation }: LiveVoiceChatPr
               onClick={() => {
                 TTSService.stopCurrentSpeech();
                 stopListening();
-                setState('idle');
-                setLastAIResponse('');
-                setCurrentTranscript('');
+                isProcessingRef.current = false;
               }}
               variant="outline"
               className="w-full border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
